@@ -2,10 +2,19 @@ name: Bug report for bnb
 labels: ["bug", "needs-triage", "issue"]
 body:
   - type: textarea
-    id: what-happened
+    id: what-happened-expect
     attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen, and any steps we might use to reproduce the problem.
+      label: What did you expect to happen?
+      description: Include the steps you took and define what you expected from these steps.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened-actual
+    attributes:
+      label: What actually happened?
+      description: Include the steps you took and outline why or how this did not meet expectations.
       placeholder: Tell us what you see!
     validations:
       required: true
