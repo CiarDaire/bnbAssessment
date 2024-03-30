@@ -1,5 +1,5 @@
 name: Bug report for bnb
-labels: ["bug", "needs-triage", "issue"]
+labels: ["bug", "needs-triage"]
 body:
   - type: textarea
     id: what-happened-expect
