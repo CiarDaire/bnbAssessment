@@ -29,12 +29,7 @@
                 checkinDate.datepicker("option", "maxDate", getDate(this));
             });
         });
-
-    // clears dates...?
-    // $(".ui-datepicker-close").on("click", function() {
-    //     $("#checkinDateInput").clearDate();
-    //     $("#checkoutDateInput").clearDate();
-    //   });
+        
     </script>
     <style>
         .return-links{display: flex; flex-direction: row;}

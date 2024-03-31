@@ -18,7 +18,6 @@ Details will be updated after any edits/updates have been made. -->
 </head>
 <body>
     <?php
-
     // assigns callable variable to database connection and provides error message if connection is unavailable
     include "config.php";
     $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
