@@ -29,7 +29,7 @@
                 checkinDate.datepicker("option", "maxDate", getDate(this));
             });
         });
-        
+
     </script>
     <style>
         .return-links{display: flex; flex-direction: row;}
@@ -45,42 +45,108 @@
     </style>
 </head>
 <body>
+    <?php
+        // assigns callable variable to database connection and provides error message if connection is unavailable
+        include "config.php";
+        $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
+        if (mysqli_connect_errno()) {
+            echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
+            exit();
+        };
+
+        // if id exists 
+        if ($_SERVER["REQUEST_METHOD"] == "GET"){
+            $id = $_GET['id'];
+            // if its empty or not a numerical data
+            if(empty($id) or !is_numeric($id)){
+                echo '<h2>The booking ID is invalid.</h2>';
+                exit();
+            }
+        }
+
+        // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
+        function cleanInput($data){
+            return htmlspecialchars(stripslashes((trim($data))));
+        }
+
+        if (isset($_POST['submit']) and !empty($_POST['id']) and ($_POST['submit'] == 'Update')){
+            $id = cleanInput($_POST['id']);
+            $roomname = cleanInput($_POST['roomname']);
+            $roomtype = cleanInput($_POST['roomtype']);
+            $beds = cleanInput($_POST['beds']);
+            $checkinDate = cleanInput($_POST['checkinDate']);
+            $checkoutDate = cleanInput($_POST['checkoutDate']);
+            $contact = cleanInput($_POST['contactNumber']);
+            $extra = cleanInput($_POST['extras']);
+
+            $update = "UPDATE booking SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras, room.roomname, room.roomtype, room.beds 
+            WHERE bookingID=?";
+
+            $stmt = mysqli_prepare($DBC, $update);
+            mysqli_stmt_bind_param($stmt, 'ississss', $id, $roomname, $roomtype, $beds, $checkinDate, $checkoutDate, $contact, $extra);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+            echo "<h2>Booking updated successfully</h2>";
+        }
+
+        $query = 'SELECT booking.bookingID, booking.extras, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds
+        FROM booking
+        INNER JOIN room ON booking.roomID = room.roomID
+        WHERE booking.bookingID = ' .$id;
+
+        $result = mysqli_query($DBC, $query);
+        $rowcount = mysqli_num_rows($result);
+
+        $otherquery = 'SELECT room.roomname, room.roomtype, room.beds FROM room';
+
+        $allrooms = mysqli_query($DBC, $otherquery);
+        $roomrows = mysqli_num_rows($allrooms);
+    ?>
     <div class="edit-booking-form">
         <h1>Edit a booking</h1>
         <div class="return-links">
             <h2><a href="listbookings.php">[Return to the Bookings listing]</a><a href="/bnb/">[Return to the main page]</a></h2>
         </div>
         <form method="POST" action="editbooking.php">
-            <!-- Suggest a typo fix for this heading -->
-            <h3>Booking made for for Test</h3>
-            <!-- Once backend quieries are established, options will be replaced with room db data, provided here is the first default option -->
+            <!-- Typo fixed - removed extra 'for' -->
+            <h3>Booking made for Test</h3>
             <div class="booking-form-input">
                 <p><label for="room">Room (name, type, beds):</label></p>
                 <select id="room" name="room" required>
-                    <option value="room1">Kellie, S, 5</option>
+                    <?php
+                    if ($rowcount > 0){
+                            $row = mysqli_fetch_assoc($result);
+                        ?>
+                        <option value="<?php echo $row['roomname'] .", " .$row['roomtype'] .", " .$row['beds'] ?>"><?php echo $row['roomname'] .", " .$row['roomtype'] .", " .$row['beds'] ?></option>
                 </select>
             </div>
             <div class="booking-form-input">
                 <p><label for="checkinDate">Checkin date:</label></p>
-                <input id="checkinDateInput" name="checkinDateInput" type="text" maxlength="10" value="15/09/2018" required>
+                <input id="checkinDateInput" name="checkinDateInput" type="text" maxlength="10" value="<?php echo $row['checkinDate'] ?>" required>
             </div>
             <div class="booking-form-input">
                 <p><label for="checkoutDate">Checkout date:</label></p>
-                <input id="checkoutDateInput" name="checkoutDateInput" type="text" maxlength="10" value="19/09/2018" required>
+                <input id="checkoutDateInput" name="checkoutDateInput" type="text" maxlength="10" value="<?php echo $row['checkoutDate'] ?>" required>
             </div>
             <div class="booking-form-input">
                 <p><label for="contactNumber">Contact number:</label></p>
-                <input type="phone" id="contactNumber" name="contactNumber" pattern="\(\d{3}\) \d{3} \d{4}" value="(001) 123 1234" maxlength="14" required>
+                <input type="phone" id="contactNumber" name="contactNumber" pattern="\(\d{3}\) \d{3} \d{4}" value="<?php echo $row['contactNumber'] ?>"minlength="14" required>
             </div>
             <div class="booking-form-textarea">
                 <p><label for="extras">Booking extras:</label></p>
-                <textarea id="extras" name="extras" maxlength="255" required>nothing</textarea>
+                <textarea id="extras" name="extras" maxlength="255" required><?php echo $row['extras'] ?></textarea>
             </div>
+            <input type="hidden" name=id value="<?php $id ?>" >
             <div class="booking-form-buttons">
                 <button type="submit" name="submit">Update</button>
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
             </div>
         </form>
     </div>
+    <?php
+        }
+        mysqli_free_result($result);
+        mysqli_close($DBC);
+    ?>
 </body>
 </html>

@@ -52,7 +52,7 @@
             WHERE bookingID=?";
 
             $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'is', $id, $roomReview);
+            mysqli_stmt_bind_param($stmt, 'si', $roomReview, $id);
             mysqli_stmt_execute($stmt);
             mysqli_stmt_close($stmt);
             echo "<h2>Room review updated successfully</h2>";
