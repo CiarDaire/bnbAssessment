@@ -78,20 +78,21 @@
             $checkoutDate = cleanInput($_POST['checkoutDate']);
             $contact = cleanInput($_POST['contactNumber']);
             $extra = cleanInput($_POST['extras']);
+            $roomReview = cleanInput($_POST['roomReview']);
 
             $update = "UPDATE booking 
             INNER JOIN room ON booking.roomID = room.roomID
-            SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, room.roomname=?, room.roomtype=?, room.beds=? 
+            SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=? 
             WHERE bookingID=?";
 
             $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'ssissssi', $roomname, $roomtype, $beds, $checkinDate, $checkoutDate, $contact, $extra, $id);
+            mysqli_stmt_bind_param($stmt, 'ssisssssi', $roomname, $roomtype, $beds, $checkinDate, $checkoutDate, $contact, $extra, $roomReview, $id);
             mysqli_stmt_execute($stmt);
             mysqli_stmt_close($stmt);
             echo "<h2>Booking updated successfully</h2>";
         }
 
-        $query = 'SELECT booking.bookingID, booking.extras, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds
+        $query = 'SELECT booking.bookingID, booking.extras, booking.roomReview, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds
         FROM booking
         INNER JOIN room ON booking.roomID = room.roomID
         WHERE booking.bookingID = ' .$id;
@@ -138,6 +139,10 @@
             <div class="booking-form-textarea">
                 <p><label for="extras">Booking extras:</label></p>
                 <textarea id="extras" name="extras" maxlength="255" required><?php echo $row['extras'] ?></textarea>
+            </div>
+            <div class="booking-form-textarea">
+                <p><label for="roomReview">Room review:</label></p>
+                <textarea id="roomReview" name="roomReview"><?php echo $row['roomReview'] ?></textarea>
             </div>
             <input type="hidden" name=id value="<?php echo $id ?>" >
             <div class="booking-form-buttons">
