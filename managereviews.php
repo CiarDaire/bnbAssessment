@@ -21,6 +21,10 @@
 </head>
 <body>
     <?php
+        include "checksession.php";
+        checkUser();
+        loginStatus(); 
+        
         // assigns callable variable to database connection and provides error message if connection is unavailable
         include "config.php";
         $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);

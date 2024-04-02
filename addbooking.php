@@ -19,12 +19,12 @@ I would also assume that the datepicker date range would cover from current day 
                 dateFormat: dateFormat
             });
             // checkin date set to 2018 to fit design brief, shows 2 month span
-            checkinDate = $('#checkinDateInput').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
+            checkinDate = $('#checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
             .on("change", function() {
                 checkoutDate.datepicker("option", "minDate");
             });
             // checkout date set to 2018 to fit design brief, shows 2 month span
-            checkoutDate = $('#checkoutDateInput').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
+            checkoutDate = $('#checkoutDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
             .on("change", function() {
                 checkinDate.datepicker("option", "maxDate");
             });
@@ -72,27 +72,107 @@ I would also assume that the datepicker date range would cover from current day 
     </style>
 </head>
 <body>
+    <?php
+        include "checksession.php";
+        checkUser();
+        loginStatus(); 
+        
+        include "config.php";
+        $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
+        if (mysqli_connect_errno()) {
+            echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
+            exit();
+        };
+        // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
+        function cleanInput($data){
+            return htmlspecialchars(stripslashes((trim($data))));
+        }
+
+        if(isset($_POST["submit"]) and !empty($_POST['submit']) and ($_POST['submit'] == 'Add')){
+            $error = 0;
+            $msg = 'Error: ';
+
+            if(isset($_POST['checkinDate']) and !empty($_POST['checkinDate']) and is_string($_POST['checkinDate'])){
+                $cInD = cleanInput($_POST['checkinDate']);
+                $checkinDate = (strlen($cInD) < 11) ? substr($cInD,1,11): $cInD;
+            } else {
+                $error++;
+                $msg .= 'Invalid checkin date';
+                $checkinDate = '';
+            }
+
+            if(isset($_POST['checkoutDate']) and !empty($_POST['checkoutDate']) and is_string($_POST['checkoutDate'])){
+                $cOutD = cleanInput($_POST['checkoutDate']);
+                $checkoutDate = (strlen($cOutD) < 11) ? substr($cOutD,1,11): $cOutD;
+            } else {
+                $error++;
+                $msg .= 'Invalid checkout date';
+                $checkoutDate = '';
+            }
+
+            if(isset($_POST['contactNumber']) and !empty($_POST['contactNumber']) and is_string($_POST['contactNumber'])){
+                $phone = cleanInput($_POST['contactNumber']);
+                $contactNumber = (strlen($phone) < 15) ? substr($phone,1,15): $phone;
+            } else {
+                $error++;
+                $msg .= 'Invalid phone number';
+                $contactNumber = '';
+            }
+
+            if(isset($_POST['extras']) and !empty($_POST['extras']) and is_string($_POST['extras'])){
+                $ex = cleanInput($_POST['extras']);
+                $extras = (strlen($ex) < 255) ? substr($ex,1,255): $ex;
+            } else {
+                $error++;
+                $msg .= 'Invalid comment';
+                $extras = '';
+            }
+
+            if($error == 0){
+                $roomID = cleanInput($_POST['roomID']);
+                $query = "INSERT INTO booking (roomID, checkinDate, checkoutDate, contactNumber, extras) VALUES (?,?,?,?,?)";
+                $stmt = mysqli_prepare($DBC, $query);
+                mysqli_stmt_bind_param($stmt, "issss", $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras);
+                if (mysqli_stmt_execute($stmt)) {
+                    echo "<h2>New booking has been added.</h2>";
+                } else {
+                    echo "<h2>Error adding booking: " . mysqli_error($DBC) . "</h2>";
+                }
+                mysqli_stmt_close($stmt);    
+            } else {
+                echo "<h2>$msg</h2>";
+            }
+            
+            
+        }
+
+        $query = 'SELECT * FROM room';
+        $result = mysqli_query($DBC, $query);
+        $rowcount = mysqli_num_rows($result);
+
+        mysqli_close($DBC);
+        
+    ?>
     <div class="booking-form">
         <h1>Make a booking</h1>
         <div class="return-links">
             <h2><a href="listbookings.php">[Return to the Bookings listing]</a><a href="/bnb/">[Return to the main page]</a></h2>
         </div>
-        <form method="POST" action="addbooking.php">
+        <form method="POST" action="<?php echo ($_SERVER['PHP_SELF']) ?>">
             <h3>Booking for Test</h3>
             <div class="booking-form-input">
-                <p><label for="room">Room (name, type, beds):</label></p>
-                <select id="room" name="room" required>
-                    <!-- Once backend quieries are established, options will be replaced with room db data, provided here is the first default option -->
-                    <option value="room1">Kellie, S, 5</option>
+                <p><label for="roomID">Room (name, type, beds):</label></p>
+                <select id="roomID" name="roomID" required>
+                    <option value="1">yeah</option>
                 </select>
             </div>
             <div class="booking-form-input">
                 <p><label for="checkinDate">Checkin date:</label></p>
-                <input id="checkinDateInput" name="checkinDateInput" type="text" placeholder="yyyy-mm-dd" maxlength="10" required>
+                <input id="checkinDate" name="checkinDate" type="text" placeholder="yyyy-mm-dd" maxlength="10" required>
             </div>
             <div class="booking-form-input">
                 <p><label for="checkoutDate">Checkout date:</label></p>
-                <input id="checkoutDateInput" name="checkoutDateInput" type="text" placeholder="yyyy-mm-dd" maxlenth="10" required>
+                <input id="checkoutDate" name="checkoutDate" type="text" placeholder="yyyy-mm-dd" maxlength="10" required>
             </div>
             <div class="booking-form-input">
                 <p><label for="contactNumber">Contact number:</label></p>
@@ -103,17 +183,18 @@ I would also assume that the datepicker date range would cover from current day 
                 <textarea id="extras" name="extras" maxlength="255" required></textarea>
             </div>
             <div class="booking-form-buttons">
-                <button type="submit" name="submit">Add</button>
+                <input type="submit" name="submit" value="Add">
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
             </div>
         </form>
+        
     </div>
     <hr>
     <h3>Search for room availability</h3>
     <div class="search">
         <p><label for="startDate">Start date:</label></p>
         <input id="startDate" name="startDate" type="text" required>
-        <p><label for="endDate">Start date:</label></p>
+        <p><label for="endDate">End date:</label></p>
         <input id="endDate" name="endDate" type="text" required>
         <p><input type="button" value="Search availability" onclick="filterRooms()"><p>
     </div>
@@ -125,10 +206,18 @@ I would also assume that the datepicker date range would cover from current day 
                 <th>Room type</th>
                 <th>Beds</th>
             </tr>
-            <tr id="filteredRooms" >
-                <td></td>
-            </tr>
         </thead>
+        <?php
+            if($rowcount > 0){
+                while($row = mysqli_fetch_assoc($result)){
+                    $roomID = $row['roomID'];
+                    echo '<tr><td>' .$row['roomID'] .'</td>';
+                    echo '<td>'. $row['roomname'] .'</td>';
+                    echo '<td>'. $row['roomtype'] .'</td>';
+                    echo '<td>'. $row['beds'] .'</td></tr>' .PHP_EOL;
+                }
+            }
+        ?>
     </table>
 </body>
 </html>
