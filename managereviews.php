@@ -59,7 +59,7 @@
             mysqli_stmt_bind_param($stmt, 'si', $roomReview, $id);
             mysqli_stmt_execute($stmt);
             mysqli_stmt_close($stmt);
-            echo "<h2>Room review updated successfully</h2>";
+            echo "<h2>Room review updated successfully</h2>"; 
         }
 
         $query = 'SELECT booking.bookingID, booking.roomReview

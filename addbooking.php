@@ -143,12 +143,15 @@ I would also assume that the datepicker date range would cover from current day 
                 echo "<h2>$msg</h2>";
             }
             
-            
         }
 
-        $query = 'SELECT * FROM room';
-        $result = mysqli_query($DBC, $query);
-        $rowcount = mysqli_num_rows($result);
+        $roomquery = 'SELECT * FROM room';
+        $roomresult = mysqli_query($DBC, $roomquery);
+        $roomrowcount = mysqli_num_rows($roomresult);
+
+        $customerquery = 'SELECT customerID, firstname, lastname FROM customer';
+        $customerresult = mysqli_query($DBC, $customerquery);
+        $customerrowcount = mysqli_num_rows($customerresult);
 
         mysqli_close($DBC);
         
@@ -161,9 +164,25 @@ I would also assume that the datepicker date range would cover from current day 
         <form method="POST" action="<?php echo ($_SERVER['PHP_SELF']) ?>">
             <h3>Booking for Test</h3>
             <div class="booking-form-input">
+                <p><label for="customerID">Customer:</label></p>
+                <select id="customerID" name="customerID" required>
+                    <?php
+                        if($customerrowcount > 0){
+                            while($row = mysqli_fetch_assoc($customerresult)){
+                                echo '<option value=" ' .$row['customerID'] .'">' .$row['lastname'] .', ' .$row['firstname'] .'</option>' .PHP_EOL;
+                        }}
+                    ?>
+                </select>
+            </div>
+            <div class="booking-form-input">
                 <p><label for="roomID">Room (name, type, beds):</label></p>
                 <select id="roomID" name="roomID" required>
-                    <option value="1">yeah</option>
+                    <?php
+                        if($roomrowcount > 0){
+                            while($row = mysqli_fetch_assoc($roomresult)){
+                                echo '<option value=" ' .$row['roomID'] .'">' .$row['roomname'] .', ' .$row['roomtype'] .', ' .$row['beds'] .'</option>' .PHP_EOL;
+                        }}
+                    ?>
                 </select>
             </div>
             <div class="booking-form-input">
@@ -187,7 +206,6 @@ I would also assume that the datepicker date range would cover from current day 
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
             </div>
         </form>
-        
     </div>
     <hr>
     <h3>Search for room availability</h3>
