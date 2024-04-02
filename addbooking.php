@@ -94,7 +94,7 @@ I would also assume that the datepicker date range would cover from current day 
 
             if(isset($_POST['checkinDate']) and !empty($_POST['checkinDate']) and is_string($_POST['checkinDate'])){
                 $cInD = cleanInput($_POST['checkinDate']);
-                $checkinDate = (strlen($cInD) < 11) ? substr($cInD,1,11): $cInD;
+                $checkinDate = (strlen($cInD) < 11) ? substr($cInD,0,11): $cInD;
             } else {
                 $error++;
                 $msg .= 'Invalid checkin date';
@@ -103,7 +103,7 @@ I would also assume that the datepicker date range would cover from current day 
 
             if(isset($_POST['checkoutDate']) and !empty($_POST['checkoutDate']) and is_string($_POST['checkoutDate'])){
                 $cOutD = cleanInput($_POST['checkoutDate']);
-                $checkoutDate = (strlen($cOutD) < 11) ? substr($cOutD,1,11): $cOutD;
+                $checkoutDate = (strlen($cOutD) < 11) ? substr($cOutD,0,11): $cOutD;
             } else {
                 $error++;
                 $msg .= 'Invalid checkout date';
@@ -112,7 +112,7 @@ I would also assume that the datepicker date range would cover from current day 
 
             if(isset($_POST['contactNumber']) and !empty($_POST['contactNumber']) and is_string($_POST['contactNumber'])){
                 $phone = cleanInput($_POST['contactNumber']);
-                $contactNumber = (strlen($phone) < 15) ? substr($phone,1,15): $phone;
+                $contactNumber = (strlen($phone) < 15) ? substr($phone,0,15): $phone;
             } else {
                 $error++;
                 $msg .= 'Invalid phone number';
@@ -121,7 +121,7 @@ I would also assume that the datepicker date range would cover from current day 
 
             if(isset($_POST['extras']) and !empty($_POST['extras']) and is_string($_POST['extras'])){
                 $ex = cleanInput($_POST['extras']);
-                $extras = (strlen($ex) < 255) ? substr($ex,1,255): $ex;
+                $extras = (strlen($ex) < 255) ? substr($ex,0,255): $ex;
             } else {
                 $error++;
                 $msg .= 'Invalid comment';
@@ -130,9 +130,10 @@ I would also assume that the datepicker date range would cover from current day 
 
             if($error == 0){
                 $roomID = cleanInput($_POST['roomID']);
-                $query = "INSERT INTO booking (roomID, checkinDate, checkoutDate, contactNumber, extras) VALUES (?,?,?,?,?)";
+                $customerID = cleanInput($_POST['customerID']);
+                $query = "INSERT INTO booking (customerID, roomID, checkinDate, checkoutDate, contactNumber, extras) VALUES (?,?,?,?,?,?)";
                 $stmt = mysqli_prepare($DBC, $query);
-                mysqli_stmt_bind_param($stmt, "issss", $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras);
+                mysqli_stmt_bind_param($stmt, "iissss", $customerID, $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras, );
                 if (mysqli_stmt_execute($stmt)) {
                     echo "<h2>New booking has been added.</h2>";
                 } else {
@@ -163,6 +164,7 @@ I would also assume that the datepicker date range would cover from current day 
         </div>
         <form method="POST" action="<?php echo ($_SERVER['PHP_SELF']) ?>">
             <h3>Booking for Test</h3>
+            <!-- Permission granted to add customer selection field -->
             <div class="booking-form-input">
                 <p><label for="customerID">Customer:</label></p>
                 <select id="customerID" name="customerID" required>

@@ -55,8 +55,8 @@ Future iteration will likely include filtering options by customer and booking p
                 if($rowcount > 0){
                     while($row = mysqli_fetch_array($result)){
                         $bookingID = $row['bookingID'];
-                        echo '<tr><td>' .$row['roomname'] .','. $row['checkinDate'] .','. $row['checkoutDate'] .'</td>';
-                        echo '<td>' .$row['lastname'] .',' .$row['firstname'] .'</td>';
+                        echo '<tr><td>' .$row['roomname'] .', '. $row['checkinDate'] .', '. $row['checkoutDate'] .'</td>';
+                        echo '<td>' .$row['lastname'] .', ' .$row['firstname'] .'</td>';
                         echo '<td> <a href="viewbooking.php?id='.$bookingID .'">[view]</a>';
                         
                         if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] ==1){
