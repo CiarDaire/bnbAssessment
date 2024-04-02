@@ -18,6 +18,10 @@ Details will be updated after any edits/updates have been made. -->
 </head>
 <body>
     <?php
+    include "checksession.php";
+    checkUser();
+    loginStatus(); 
+
     // assigns callable variable to database connection and provides error message if connection is unavailable
     include "config.php";
     $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
@@ -46,7 +50,6 @@ Details will be updated after any edits/updates have been made. -->
 
     ?>
     <div class="booking-form">
-        <h3>Logged in as Test</h3>
         <h1>Booking Details View</h1>
         <div class="return-links">
             <!-- Would suggest a replacement to "Bookings" to keep it consistent with the other pages -->

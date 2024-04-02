@@ -14,6 +14,10 @@ Future iteration will likely include filtering options by customer and booking p
 </head>
 <body>
     <?php
+    include "checksession.php";
+    checkUser();
+    loginStatus(); 
+
     // assigns callable variable to database connection and provides error message if connection is unavailable
     include "config.php";
     $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
@@ -53,7 +57,11 @@ Future iteration will likely include filtering options by customer and booking p
                         $bookingID = $row['bookingID'];
                         echo '<tr><td>' .$row['roomname'] .','. $row['checkinDate'] .','. $row['checkoutDate'] .'</td>';
                         echo '<td>' .$row['lastname'] .',' .$row['firstname'] .'</td>';
-                        echo '<td> <a href="viewbooking.php?id='.$bookingID .'">[view]</a><a href="editbooking.php?id='.$bookingID .'">[edit]</a><a href="managereviews.php?id='.$bookingID .'">[manage reviews]</a><a href="deletebooking.php?id='.$bookingID .'">[delete]</a></td>';
+                        echo '<td> <a href="viewbooking.php?id='.$bookingID .'">[view]</a>';
+                        
+                        if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] ==1){
+                        echo '<a href="editbooking.php?id='.$bookingID .'">[edit]</a><a href="managereviews.php?id='.$bookingID .'">[manage reviews]</a><a href="deletebooking.php?id='.$bookingID .'">[delete]</a></td>';
+                        }
                         echo '</tr>' .PHP_EOL;
                     }
                 }else{
