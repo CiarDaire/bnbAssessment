@@ -21,6 +21,8 @@ function loginStatus(){
     $un = $_SESSION['username'];
     if($_SESSION['loggedin'] == 1){
         echo "<h6> logged in as $un </h6>";
+    }else{
+        echo "<h6>User has not logged in.</h6>";
     }
 }
 

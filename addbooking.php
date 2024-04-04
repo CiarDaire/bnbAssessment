@@ -52,9 +52,11 @@ I would also assume that the datepicker date range would cover from current day 
                 }
             }
         
-            xhttp.open("GET", "roomfilter.php?startDate=" + startDate + "&endDate=" + endDate, true);
+            xhttp.open("GET", "roomsearch.php?startDate=" + startDate + "&endDate=" + endDate, true);
             xhttp.send();
+            
         }
+        
     </script>
     <style>
         .return-links{display: flex; flex-direction: row;}
@@ -143,6 +145,12 @@ I would also assume that the datepicker date range would cover from current day 
             } else {
                 echo "<h2>$msg</h2>";
             }
+
+            // Search field
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ss", $fromDate, $toDate);
+            $stmt->execute();
             
         }
 
@@ -154,7 +162,7 @@ I would also assume that the datepicker date range would cover from current day 
         $customerresult = mysqli_query($DBC, $customerquery);
         $customerrowcount = mysqli_num_rows($customerresult);
 
-        mysqli_close($DBC);
+        
         
     ?>
     <div class="booking-form">
@@ -218,26 +226,15 @@ I would also assume that the datepicker date range would cover from current day 
         <input id="endDate" name="endDate" type="text" required>
         <p><input type="button" value="Search availability" onclick="filterRooms()"><p>
     </div>
-    <table border='1'>
+    <table id="filteredRooms" border='1'>
         <thead>
             <tr>
-                <th>Room #</th>
+                <th>Room # </th>
                 <th>Roomname</th>
-                <th>Room type</th>
+                <th>Room Type</th>
                 <th>Beds</th>
             </tr>
         </thead>
-        <?php
-            if($rowcount > 0){
-                while($row = mysqli_fetch_assoc($result)){
-                    $roomID = $row['roomID'];
-                    echo '<tr><td>' .$row['roomID'] .'</td>';
-                    echo '<td>'. $row['roomname'] .'</td>';
-                    echo '<td>'. $row['roomtype'] .'</td>';
-                    echo '<td>'. $row['beds'] .'</td></tr>' .PHP_EOL;
-                }
-            }
-        ?>
     </table>
 </body>
 </html>
