@@ -46,15 +46,19 @@ I would also assume that the datepicker date range would cover from current day 
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
 
-            xhttp.onreadystatechange = function(){
-            if (this.readyState == 4 && this.status == 200){
-                $('#filteredRooms').html(this.responseText);
+            $.ajax({
+                url: "roomsearch.php",
+                method: "GET",
+                data: { startDate: startDate, endDate: endDate },
+                success: function(response) {
+                    $('#filteredRooms').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
                 }
-            }
-        
-            xhttp.open("GET", "roomfilter.php?startDate=" + startDate + "&endDate=" + endDate, true);
-            xhttp.send();
+            });
         }
+        
     </script>
     <style>
         .return-links{display: flex; flex-direction: row;}
@@ -94,7 +98,7 @@ I would also assume that the datepicker date range would cover from current day 
 
             if(isset($_POST['checkinDate']) and !empty($_POST['checkinDate']) and is_string($_POST['checkinDate'])){
                 $cInD = cleanInput($_POST['checkinDate']);
-                $checkinDate = (strlen($cInD) < 11) ? substr($cInD,1,11): $cInD;
+                $checkinDate = (strlen($cInD) < 11) ? substr($cInD,0,11): $cInD;
             } else {
                 $error++;
                 $msg .= 'Invalid checkin date';
@@ -103,7 +107,7 @@ I would also assume that the datepicker date range would cover from current day 
 
             if(isset($_POST['checkoutDate']) and !empty($_POST['checkoutDate']) and is_string($_POST['checkoutDate'])){
                 $cOutD = cleanInput($_POST['checkoutDate']);
-                $checkoutDate = (strlen($cOutD) < 11) ? substr($cOutD,1,11): $cOutD;
+                $checkoutDate = (strlen($cOutD) < 11) ? substr($cOutD,0,11): $cOutD;
             } else {
                 $error++;
                 $msg .= 'Invalid checkout date';
@@ -112,7 +116,7 @@ I would also assume that the datepicker date range would cover from current day 
 
             if(isset($_POST['contactNumber']) and !empty($_POST['contactNumber']) and is_string($_POST['contactNumber'])){
                 $phone = cleanInput($_POST['contactNumber']);
-                $contactNumber = (strlen($phone) < 15) ? substr($phone,1,15): $phone;
+                $contactNumber = (strlen($phone) < 15) ? substr($phone,0,15): $phone;
             } else {
                 $error++;
                 $msg .= 'Invalid phone number';
@@ -121,7 +125,7 @@ I would also assume that the datepicker date range would cover from current day 
 
             if(isset($_POST['extras']) and !empty($_POST['extras']) and is_string($_POST['extras'])){
                 $ex = cleanInput($_POST['extras']);
-                $extras = (strlen($ex) < 255) ? substr($ex,1,255): $ex;
+                $extras = (strlen($ex) < 255) ? substr($ex,0,255): $ex;
             } else {
                 $error++;
                 $msg .= 'Invalid comment';
@@ -130,9 +134,10 @@ I would also assume that the datepicker date range would cover from current day 
 
             if($error == 0){
                 $roomID = cleanInput($_POST['roomID']);
-                $query = "INSERT INTO booking (roomID, checkinDate, checkoutDate, contactNumber, extras) VALUES (?,?,?,?,?)";
+                $customerID = cleanInput($_POST['customerID']);
+                $query = "INSERT INTO booking (customerID, roomID, checkinDate, checkoutDate, contactNumber, extras) VALUES (?,?,?,?,?,?)";
                 $stmt = mysqli_prepare($DBC, $query);
-                mysqli_stmt_bind_param($stmt, "issss", $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras);
+                mysqli_stmt_bind_param($stmt, "iissss", $customerID, $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras, );
                 if (mysqli_stmt_execute($stmt)) {
                     echo "<h2>New booking has been added.</h2>";
                 } else {
@@ -143,15 +148,15 @@ I would also assume that the datepicker date range would cover from current day 
                 echo "<h2>$msg</h2>";
             }
             
-            
         }
 
-        $query = 'SELECT * FROM room';
-        $result = mysqli_query($DBC, $query);
-        $rowcount = mysqli_num_rows($result);
+        $roomquery = 'SELECT * FROM room';
+        $roomresult = mysqli_query($DBC, $roomquery);
+        $roomrowcount = mysqli_num_rows($roomresult);
 
-        mysqli_close($DBC);
-        
+        $customerquery = 'SELECT customerID, firstname, lastname FROM customer';
+        $customerresult = mysqli_query($DBC, $customerquery);
+        $customerrowcount = mysqli_num_rows($customerresult);
     ?>
     <div class="booking-form">
         <h1>Make a booking</h1>
@@ -160,10 +165,27 @@ I would also assume that the datepicker date range would cover from current day 
         </div>
         <form method="POST" action="<?php echo ($_SERVER['PHP_SELF']) ?>">
             <h3>Booking for Test</h3>
+            <!-- Permission granted to add customer selection field -->
+            <div class="booking-form-input">
+                <p><label for="customerID">Customer:</label></p>
+                <select id="customerID" name="customerID" required>
+                    <?php
+                        if($customerrowcount > 0){
+                            while($row = mysqli_fetch_assoc($customerresult)){
+                                echo '<option value=" ' .$row['customerID'] .'">' .$row['lastname'] .', ' .$row['firstname'] .'</option>' .PHP_EOL;
+                        }}
+                    ?>
+                </select>
+            </div>
             <div class="booking-form-input">
                 <p><label for="roomID">Room (name, type, beds):</label></p>
                 <select id="roomID" name="roomID" required>
-                    <option value="1">yeah</option>
+                    <?php
+                        if($roomrowcount > 0){
+                            while($row = mysqli_fetch_assoc($roomresult)){
+                                echo '<option value=" ' .$row['roomID'] .'">' .$row['roomname'] .', ' .$row['roomtype'] .', ' .$row['beds'] .'</option>' .PHP_EOL;
+                        }}
+                    ?>
                 </select>
             </div>
             <div class="booking-form-input">
@@ -187,7 +209,6 @@ I would also assume that the datepicker date range would cover from current day 
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
             </div>
         </form>
-        
     </div>
     <hr>
     <h3>Search for room availability</h3>
@@ -198,26 +219,15 @@ I would also assume that the datepicker date range would cover from current day 
         <input id="endDate" name="endDate" type="text" required>
         <p><input type="button" value="Search availability" onclick="filterRooms()"><p>
     </div>
-    <table border='1'>
+    <table id="filteredRooms" border='1'>
         <thead>
             <tr>
-                <th>Room #</th>
+                <th>Room # </th>
                 <th>Roomname</th>
-                <th>Room type</th>
+                <th>Room Type</th>
                 <th>Beds</th>
             </tr>
         </thead>
-        <?php
-            if($rowcount > 0){
-                while($row = mysqli_fetch_assoc($result)){
-                    $roomID = $row['roomID'];
-                    echo '<tr><td>' .$row['roomID'] .'</td>';
-                    echo '<td>'. $row['roomname'] .'</td>';
-                    echo '<td>'. $row['roomtype'] .'</td>';
-                    echo '<td>'. $row['beds'] .'</td></tr>' .PHP_EOL;
-                }
-            }
-        ?>
     </table>
 </body>
 </html>

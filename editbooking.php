@@ -17,19 +17,30 @@
                 dateFormat: dateFormat
             });
 
-            // checkin date set to 2018 to fit design brief, shows 2 month span
-            checkinDate = $('#checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
-            .on("change", function() {
+            $(function(){
+                // checkin date set to 2018 to fit design brief, shows 2 month span
+                checkinDate = $('#checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
+                .on("change", function() {
                 checkoutDate.datepicker("option", "minDate", getDate(this));
-            });
+                });
 
-            // checkour date set to 2018 to fit design brief, shows 2 month span
-            checkoutDate = $('#checkoutDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
-            .on("change", function() {
-                checkinDate.datepicker("option", "maxDate", getDate(this));
-            });
+                // checkout date set to 2018 to fit design brief, shows 2 month span
+                checkoutDate = $('#checkoutDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
+                .on("change", function() {
+                    checkinDate.datepicker("option", "maxDate", getDate(this));
+                });
+
+                function getDate(element) {
+                    var date;
+                    try {
+                        date = $.datepicker.parseDate(dateFormat, element.value);
+                    } catch (error) {
+                        date = null;
+                    }
+                    return date;
+                }
+            })
         });
-
     </script>
     <style>
         .return-links{display: flex; flex-direction: row;}
@@ -74,16 +85,81 @@
         }
 
         if (isset($_POST['submit']) and !empty($_POST['id']) and ($_POST['submit'] == 'Update')){
-            $id = cleanInput($_POST['id']);
-            $roomname = cleanInput($_POST['roomname']);
-            $roomtype = cleanInput($_POST['roomtype']);
-            $beds = cleanInput($_POST['beds']);
-            $checkinDate = cleanInput($_POST['checkinDate']);
-            $checkoutDate = cleanInput($_POST['checkoutDate']);
-            $contact = cleanInput($_POST['contactNumber']);
-            $extra = cleanInput($_POST['extras']);
-            $roomReview = cleanInput($_POST['roomReview']);
+            $error = 0;
+            $msg = "Error: ";
 
+            if (isset($_POST['id']) and !empty($_POST['id']) and is_integer(intval($_POST['id']))) {
+                $id = cleanInput($_POST['id']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid room ID '; 
+                $id = 0;  
+            };
+
+            if (isset($_POST['roomname']) and !empty($_POST['roomname']) and is_string($_POST['roomname'])) {
+                $roomname = cleanInput($_POST['roomname']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid roomname '; 
+                $roomname = ' ';  
+            };
+
+            if (isset($_POST['roomtype']) and !empty($_POST['roomtype']) and is_string($_POST['roomtype'])) {
+                $roomtype = cleanInput($_POST['roomtype']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid roomtype '; 
+                $roomtype = ' ';  
+            };
+
+            if (isset($_POST['beds']) and !empty($_POST['beds']) and is_integer(intval($_POST['beds']))) {
+                $beds = cleanInput($_POST['beds']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid number of beds '; 
+                $beds = 0;  
+            };
+
+            if (isset($_POST['checkinDate']) and !empty($_POST['checkinDate']) and is_string($_POST['checkinDate'])) {
+                $checkinDate = cleanInput($_POST['checkinDate']); 
+            } else {
+                $error++;
+                $msg .= 'Invalid check in date ';
+                $checkinDate = ' ';  
+            };
+
+            if (isset($_POST['checkoutDate']) and !empty($_POST['checkoutDate']) and is_string($_POST['checkoutDate'])) {
+                $checkoutDate = cleanInput($_POST['checkoutDate']); 
+            } else {
+                $error++;
+                $msg .= 'Invalid check out date ';
+                $checkoutDate = ' ';  
+            };
+
+            if (isset($_POST['contactNumber']) and !empty($_POST['contactNumber']) and is_string($_POST['contactNumber'])) {
+                $contactNumber = cleanInput($_POST['contactNumber']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid room ID '; 
+                $contactNumber = ' ';  
+            };
+
+            if (isset($_POST['extras']) and !empty($_POST['extras']) and is_string($_POST['extras'])) {
+                $extras = cleanInput($_POST['extras']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid comment in extras'; 
+                $extras = ' ';  
+            };
+
+            if (isset($_POST['roomReview']) and !empty($_POST['roomReview']) and is_string($_POST['roomReview'])) {
+                $roomReview = cleanInput($_POST['roomReview']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid room review '; 
+                $roomReview = ' ';  
+            };
+            
             $update = "UPDATE booking 
             INNER JOIN room ON booking.roomID = room.roomID
             SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=? 
@@ -91,9 +167,13 @@
 
             $stmt = mysqli_prepare($DBC, $update);
             mysqli_stmt_bind_param($stmt, 'ssisssssi', $roomname, $roomtype, $beds, $checkinDate, $checkoutDate, $contact, $extra, $roomReview, $id);
-            mysqli_stmt_execute($stmt);
+            if (!mysqli_stmt_execute($stmt)) {
+                echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
+            }else{
+                echo "<h2>Booking updated successfully</h2>";
+            }
             mysqli_stmt_close($stmt);
-            echo "<h2>Booking updated successfully</h2>";
+            
         }
 
         $query = 'SELECT booking.bookingID, booking.extras, booking.roomReview, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds
@@ -103,6 +183,14 @@
 
         $result = mysqli_query($DBC, $query);
         $rowcount = mysqli_num_rows($result);
+
+        $roomquery = 'SELECT * FROM room';
+        $roomresult = mysqli_query($DBC, $roomquery);
+        $roomrowcount = mysqli_num_rows($roomresult);
+
+        $customerquery = 'SELECT customerID, firstname, lastname FROM customer';
+        $customerresult = mysqli_query($DBC, $customerquery);
+        $customerrowcount = mysqli_num_rows($customerresult);
     ?>
     <div class="edit-booking-form">
         <h1>Edit a booking</h1>
@@ -116,18 +204,16 @@
                 <p><label for="room">Room (name, type, beds):</label></p>
                 <select id="room" name="room" required>
                     <?php
-                        if ($rowcount > 0){
-                            $row = mysqli_fetch_assoc($result);
+                        if ($roomrowcount > 0){
+                            while($row = mysqli_fetch_assoc($roomresult)){
+                                echo '<option value=" ' .$row['roomID'] .'">' .$row['roomname'] .', ' .$row['roomtype'] .', ' .$row['beds'] .'</option>' .PHP_EOL;}};
                     ?>
-                    <option><?php echo $row['roomname'] .", " .$row['roomtype'] .", " .$row['beds'] ?></option>
                 </select>
-                <input type="hidden" id="roomname" name="roomname">
-                <input type="hidden" id="roomtype" name="roomtype">
-                <input type="hidden" id="beds" name="beds">
-                <?php
-                }else echo "<option> No booking found.</option>";
-                ?>
             </div>
+            <?php
+                if($rowcount > 0){
+                    while($row = mysqli_fetch_assoc($result)){
+            ?>
             <div class="booking-form-input">
                 <p><label for="checkinDate">Checkin date:</label></p>
                 <input id="checkinDate" name="checkinDate" type="text" maxlength="10" value="<?php echo $row['checkinDate'] ?>" required>
@@ -152,12 +238,12 @@
             <div class="booking-form-buttons">
                 <input type="submit" name="submit" value="Update">
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
-            </div>
+            </div> 
+            <?php
+                }
+            }
+            ?>
         </form>
     </div>
-    <?php
-    mysqli_free_result($result);
-    mysqli_close($DBC);
-    ?>
 </body>
 </html>
