@@ -146,11 +146,9 @@ I would also assume that the datepicker date range would cover from current day 
                 echo "<h2>$msg</h2>";
             }
 
-            // Search field
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ss", $fromDate, $toDate);
-            $stmt->execute();
+            // $stmt = $DBC->prepare($query);
+            // $stmt->bind_param("ss", $fromDate, $toDate);
+            // $stmt->execute();
             
         }
 
@@ -161,9 +159,6 @@ I would also assume that the datepicker date range would cover from current day 
         $customerquery = 'SELECT customerID, firstname, lastname FROM customer';
         $customerresult = mysqli_query($DBC, $customerquery);
         $customerrowcount = mysqli_num_rows($customerresult);
-
-        
-        
     ?>
     <div class="booking-form">
         <h1>Make a booking</h1>
