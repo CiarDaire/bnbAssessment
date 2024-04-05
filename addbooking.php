@@ -46,15 +46,17 @@ I would also assume that the datepicker date range would cover from current day 
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
 
-            xhttp.onreadystatechange = function(){
-            if (this.readyState == 4 && this.status == 200){
-                $('#filteredRooms').html(this.responseText);
+            $.ajax({
+                url: "roomsearch.php",
+                method: "GET",
+                data: { startDate: startDate, endDate: endDate },
+                success: function(response) {
+                    $('#filteredRooms').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
                 }
-            }
-        
-            xhttp.open("GET", "roomsearch.php?startDate=" + startDate + "&endDate=" + endDate, true);
-            xhttp.send();
-            
+            });
         }
         
     </script>
