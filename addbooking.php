@@ -145,10 +145,6 @@ I would also assume that the datepicker date range would cover from current day 
             } else {
                 echo "<h2>$msg</h2>";
             }
-
-            // $stmt = $DBC->prepare($query);
-            // $stmt->bind_param("ss", $fromDate, $toDate);
-            // $stmt->execute();
             
         }
 
