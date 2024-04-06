@@ -12,14 +12,13 @@
     <script>
         $(document).ready(function() {
             // sets default date format to yy-mm-dd for following fields
-            var dateFormat = 'yy-mm-dd';
             $.datepicker.setDefaults({
-                dateFormat: dateFormat
+                dateFormat: 'yy-mm-dd'
             });
 
             $(function(){
                 // checkin date set to 2018 to fit design brief, shows 2 month span
-                checkinDate = $('#checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
+                checkinDate = $('checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
                 .on("change", function() {
                 checkoutDate.datepicker("option", "minDate", getDate(this));
                 });
@@ -39,7 +38,7 @@
                     }
                     return date;
                 }
-            })
+            });
         });
     </script>
     <style>
@@ -66,7 +65,7 @@
         $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
         if (mysqli_connect_errno()) {
             echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
-            exit();
+            exit;
         };
 
         // if id exists 
@@ -75,7 +74,7 @@
             // if its empty or not a numerical data
             if(empty($id) or !is_numeric($id)){
                 echo '<h2>The booking ID is invalid.</h2>';
-                exit();
+                exit;
             }
         }
 
@@ -84,7 +83,7 @@
             return htmlspecialchars(stripslashes((trim($data))));
         }
 
-        if (isset($_POST['submit']) and !empty($_POST['id']) and ($_POST['submit'] == 'Update')){
+        if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Update')){
             $error = 0;
             $msg = "Error: ";
 
@@ -166,7 +165,7 @@
             WHERE bookingID=?";
 
             $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'ssisssssi', $roomname, $roomtype, $beds, $checkinDate, $checkoutDate, $contact, $extra, $roomReview, $id);
+            mysqli_stmt_bind_param($stmt, 'ssisssssi', $roomname, $roomtype, $beds, $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $id);
             if (!mysqli_stmt_execute($stmt)) {
                 echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
             }else{
@@ -206,21 +205,22 @@
                     <?php
                         if ($roomrowcount > 0){
                             while($row = mysqli_fetch_assoc($roomresult)){
-                                echo '<option value=" ' .$row['roomID'] .'">' .$row['roomname'] .', ' .$row['roomtype'] .', ' .$row['beds'] .'</option>' .PHP_EOL;}};
+                                echo '<option value=" ' .$row['roomID'] .'">' .$row['roomname'] .', ' .$row['roomtype'] .', ' .$row['beds'] .'</option>' .PHP_EOL;}
+                            };
                     ?>
                 </select>
             </div>
             <?php
                 if($rowcount > 0){
-                    while($row = mysqli_fetch_assoc($result)){
+                    $row = mysqli_fetch_assoc($result)
             ?>
             <div class="booking-form-input">
                 <p><label for="checkinDate">Checkin date:</label></p>
-                <input id="checkinDate" name="checkinDate" type="text" maxlength="10" value="<?php echo $row['checkinDate'] ?>" required>
+                <input id="checkinDate" name="checkinDate" type="text" maxlength="11" value="<?php echo $row['checkinDate'] ?>" required>
             </div>
             <div class="booking-form-input">
                 <p><label for="checkoutDate">Checkout date:</label></p>
-                <input id="checkoutDate" name="checkoutDate" type="text" maxlength="10" value="<?php echo $row['checkoutDate'] ?>" required>
+                <input id="checkoutDate" name="checkoutDate" type="text" maxlength="11" value="<?php echo $row['checkoutDate'] ?>" required>
             </div>
             <div class="booking-form-input">
                 <p><label for="contactNumber">Contact number:</label></p>
@@ -239,11 +239,12 @@
                 <input type="submit" name="submit" value="Update">
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
             </div> 
-            <?php
-                }
-            }
-            ?>
         </form>
+        <?php
+                }
+                mysqli_free_result($result);
+                mysqli_close($DBC);
+            ?>
     </div>
 </body>
 </html>
