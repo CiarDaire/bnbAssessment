@@ -1,14 +1,7 @@
----
-name: Bug report
-about: Issue report for bnb website
-title: ''
-labels: ''
-assignees: ''
-
----
-
 name: Bug report for bnb
-labels: ["bug", "needs-triage"]
+description: Issue report for bnb website
+title: "[Bug Report]: "
+labels: [bug, needs-triage]
 body:
   - type: textarea
     id: what-happened-expect
@@ -52,17 +45,24 @@ body:
       label: Browser version
       description: If the problem is related to the GUI, describe your browser and version.
       placeholder: Chrome 123.0.6312.86
+    validations:
+      required: true
 
   - type: textarea
     id: hardware
     attributes:
-      label: What hardware were you using when you encountered the issue? 
-      description: 
+      label: What hardware were you using when you encountered the issue?
+      description: Please specify your hardware setup.
       placeholder: What were you using?
+    validations:
+      required: false
 
   - type: textarea
     id: logs
     attributes:
       label: Relevant log output and error messages
-      description: Please copy and paste any relevant log output, crash backtrace, or error messages. This will be automatically formatted into code, so no need for backticks.
+      description: Please copy and paste any relevant log output or error messages. This will be automatically formatted into code, so no need for backticks.
       render: shell
+    validations:
+      required: false
+
