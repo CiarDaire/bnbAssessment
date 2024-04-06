@@ -58,7 +58,6 @@ I would also assume that the datepicker date range would cover from current day 
                 }
             });
         }
-        
     </script>
     <style>
         .return-links{display: flex; flex-direction: row;}
@@ -147,7 +146,6 @@ I would also assume that the datepicker date range would cover from current day 
             } else {
                 echo "<h2>$msg</h2>";
             }
-            
         }
 
         $roomquery = 'SELECT * FROM room';
@@ -231,3 +229,14 @@ I would also assume that the datepicker date range would cover from current day 
     </table>
 </body>
 </html>
+
+<!-- $("#Add").submit(function(event){
+                event.preventDefault();
+                var endDate = $('#endDate').val();
+                var startDate = $('#startDate').val();
+
+                if (endDate > startDate){
+                    alert("Denied- Your bookings start date must be before your end date.");
+                    return false;
+                }
+            }) -->
