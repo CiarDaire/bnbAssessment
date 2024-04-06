@@ -18,7 +18,7 @@
 
             $(function(){
                 // checkin date set to 2018 to fit design brief, shows 2 month span
-                checkinDate = $('checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
+                checkinDate = $('#checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
                 .on("change", function() {
                 checkoutDate.datepicker("option", "minDate", getDate(this));
                 });
@@ -68,7 +68,6 @@
             exit;
         };
 
-        $roomID = 0;
         // if id exists 
         if ($_SERVER["REQUEST_METHOD"] == "GET"){
             $id = $_GET['id'];
@@ -94,14 +93,6 @@
                 $error++; 
                 $msg .= 'Invalid ID '; 
                 $id = 0;  
-            };
-
-            if (isset($_POST['roomID']) and !empty($_POST['roomID']) and is_integer(intval($_POST['roomID']))) {
-                $roomID = cleanInput($_POST['roomID']); 
-            } else {
-                $error++; 
-                $msg .= 'Invalid room ID '; 
-                $roomID = 0;  
             };
 
             if (isset($_POST['roomname']) and !empty($_POST['roomname']) and is_string($_POST['roomname'])) {
@@ -168,20 +159,23 @@
                 $roomReview = ' ';  
             };
             
+            // $update = "UPDATE booking 
+            // INNER JOIN room ON booking.roomID = room.roomID
+            // SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=?
+            // WHERE bookingID=" .$id;
+
             $update = "UPDATE booking 
-            INNER JOIN room ON booking.roomID = room.roomID
-            SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=?, room.roomID=? 
-            WHERE bookingID=?";
+                SET checkinDate=?, checkoutDate=?, contactNumber=?, extras=?, roomReview=?
+                WHERE bookingID=?";
 
             $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'sssssssiii', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $roomname, $roomtype, $beds, $id, $roomID);
+            mysqli_stmt_bind_param($stmt, 'sssssi', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $id);
 
             if (!mysqli_stmt_execute($stmt)) {
                 echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
             }else{
                 echo "<h2>Booking updated successfully</h2>";
             }
-           
             mysqli_stmt_close($stmt);
             
         }
@@ -252,7 +246,7 @@
                 <textarea id="roomReview" name="roomReview"><?php echo $row['roomReview'] ?></textarea>
             </div>
             <input type="hidden" name="id" value="<?php echo $id ?>" >
-            <input type="hidden" name="roomID" value="<?php echo $roomID ?>" >
+            
             <div class="booking-form-buttons">
                 <input type="submit" name="submit" value="Update">
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
