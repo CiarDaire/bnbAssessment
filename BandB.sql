@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 06, 2024 at 11:48 AM
+-- Generation Time: Apr 06, 2024 at 12:37 PM
 -- Server version: 8.0.23
 -- PHP Version: 8.0.3
 
@@ -133,8 +133,8 @@ INSERT INTO `room` (`roomID`, `roomname`, `description`, `roomtype`, `beds`) VAL
 --
 ALTER TABLE `booking`
   ADD PRIMARY KEY (`bookingID`),
-  ADD KEY `FK_roomID` (`roomID`),
-  ADD KEY `FK_customerID` (`customerID`);
+  ADD KEY `FK_customerID` (`customerID`),
+  ADD KEY `FK_roomID` (`roomID`);
 
 --
 -- Indexes for table `customer`
@@ -178,8 +178,8 @@ ALTER TABLE `room`
 -- Constraints for table `booking`
 --
 ALTER TABLE `booking`
-  ADD CONSTRAINT `FK_customerID` FOREIGN KEY (`customerID`) REFERENCES `customer` (`customerID`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `FK_roomID` FOREIGN KEY (`roomID`) REFERENCES `room` (`roomID`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `FK_customerID` FOREIGN KEY (`customerID`) REFERENCES `customer` (`customerID`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_roomID` FOREIGN KEY (`roomID`) REFERENCES `room` (`roomID`) ON DELETE RESTRICT ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
