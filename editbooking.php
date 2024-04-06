@@ -12,14 +12,13 @@
     <script>
         $(document).ready(function() {
             // sets default date format to yy-mm-dd for following fields
-            var dateFormat = 'yy-mm-dd';
             $.datepicker.setDefaults({
-                dateFormat: dateFormat
+                dateFormat: 'yy-mm-dd'
             });
 
             $(function(){
                 // checkin date set to 2018 to fit design brief, shows 2 month span
-                checkinDate = $('#checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
+                checkinDate = $('checkinDate').datepicker({ defaultDate: "2018-09-05", changeMonth: true, numberOfMonths: 2 })
                 .on("change", function() {
                 checkoutDate.datepicker("option", "minDate", getDate(this));
                 });
@@ -39,7 +38,7 @@
                     }
                     return date;
                 }
-            })
+            });
         });
     </script>
     <style>
@@ -57,25 +56,30 @@
 </head>
 <body>
     <?php
+        var_dump($_POST);
+    
         include "checksession.php";
         checkUser();
         loginStatus(); 
+
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         // assigns callable variable to database connection and provides error message if connection is unavailable
         include "config.php";
         $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
         if (mysqli_connect_errno()) {
             echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
-            exit();
+            exit;
         };
 
+        $roomID = 0;
         // if id exists 
         if ($_SERVER["REQUEST_METHOD"] == "GET"){
             $id = $_GET['id'];
             // if its empty or not a numerical data
             if(empty($id) or !is_numeric($id)){
                 echo '<h2>The booking ID is invalid.</h2>';
-                exit();
+                exit;
             }
         }
 
@@ -84,7 +88,7 @@
             return htmlspecialchars(stripslashes((trim($data))));
         }
 
-        if (isset($_POST['submit']) and !empty($_POST['id']) and ($_POST['submit'] == 'Update')){
+        if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Update')){
             $error = 0;
             $msg = "Error: ";
 
@@ -92,8 +96,16 @@
                 $id = cleanInput($_POST['id']); 
             } else {
                 $error++; 
-                $msg .= 'Invalid room ID '; 
+                $msg .= 'Invalid ID '; 
                 $id = 0;  
+            };
+
+            if (isset($_POST['roomID']) and !empty($_POST['roomID']) and is_integer(intval($_POST['roomID']))) {
+                $roomID = cleanInput($_POST['roomID']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid room ID '; 
+                $roomID = 0;  
             };
 
             if (isset($_POST['roomname']) and !empty($_POST['roomname']) and is_string($_POST['roomname'])) {
@@ -162,21 +174,23 @@
             
             $update = "UPDATE booking 
             INNER JOIN room ON booking.roomID = room.roomID
-            SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=? 
+            SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=?, room.roomID=? 
             WHERE bookingID=?";
 
             $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'ssisssssi', $roomname, $roomtype, $beds, $checkinDate, $checkoutDate, $contact, $extra, $roomReview, $id);
+            mysqli_stmt_bind_param($stmt, 'sssssssiii', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $roomname, $roomtype, $beds, $id, $roomID);
+
             if (!mysqli_stmt_execute($stmt)) {
                 echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
             }else{
                 echo "<h2>Booking updated successfully</h2>";
             }
+           
             mysqli_stmt_close($stmt);
             
         }
 
-        $query = 'SELECT booking.bookingID, booking.extras, booking.roomReview, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds
+        $query = 'SELECT booking.bookingID, booking.extras, booking.roomReview, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds, room.roomID
         FROM booking
         INNER JOIN room ON booking.roomID = room.roomID
         WHERE booking.bookingID = ' .$id;
@@ -200,27 +214,34 @@
         <form method="POST" action="editbooking.php">
             <!-- Typo fixed - removed extra 'for' -->
             <h3>Booking made for Test</h3>
-            <div class="booking-form-input">
-                <p><label for="room">Room (name, type, beds):</label></p>
-                <select id="room" name="room" required>
-                    <?php
-                        if ($roomrowcount > 0){
-                            while($row = mysqli_fetch_assoc($roomresult)){
-                                echo '<option value=" ' .$row['roomID'] .'">' .$row['roomname'] .', ' .$row['roomtype'] .', ' .$row['beds'] .'</option>' .PHP_EOL;}};
-                    ?>
-                </select>
-            </div>
             <?php
                 if($rowcount > 0){
-                    while($row = mysqli_fetch_assoc($result)){
-            ?>
+                    $row = mysqli_fetch_assoc($result);
+                ?>
+                <div class="booking-form-input">
+                    <p><label for="roomID">Room (name, type, beds):</label></p>
+                    <select id="roomID" name="roomID" required>
+                        <?php
+                            if ($roomrowcount > 0){
+                                while($room_row = mysqli_fetch_assoc($roomresult)){
+                                    if ($room_row['roomID'] == $row['roomID']) {
+                                        echo '<option value="' .$room_row['roomID'] .'" selected>' .$room_row['roomname'] .', ' .$room_row['roomtype'] .', ' .$room_row['beds'] .'</option>' .PHP_EOL;
+                                    } else {
+                                        echo '<option value="' .$room_row['roomID'] .'">' .$room_row['roomname'] .', ' .$room_row['roomtype'] .', ' .$room_row['beds'] .'</option>' .PHP_EOL;
+                                    }
+                                }
+                            }
+                        ?>
+                    </select>
+                </div>
+            
             <div class="booking-form-input">
                 <p><label for="checkinDate">Checkin date:</label></p>
-                <input id="checkinDate" name="checkinDate" type="text" maxlength="10" value="<?php echo $row['checkinDate'] ?>" required>
+                <input id="checkinDate" name="checkinDate" type="text" maxlength="11" value="<?php echo $row['checkinDate'] ?>" required>
             </div>
             <div class="booking-form-input">
                 <p><label for="checkoutDate">Checkout date:</label></p>
-                <input id="checkoutDate" name="checkoutDate" type="text" maxlength="10" value="<?php echo $row['checkoutDate'] ?>" required>
+                <input id="checkoutDate" name="checkoutDate" type="text" maxlength="11" value="<?php echo $row['checkoutDate'] ?>" required>
             </div>
             <div class="booking-form-input">
                 <p><label for="contactNumber">Contact number:</label></p>
@@ -234,16 +255,18 @@
                 <p><label for="roomReview">Room review:</label></p>
                 <textarea id="roomReview" name="roomReview"><?php echo $row['roomReview'] ?></textarea>
             </div>
-            <input type="hidden" name=id value="<?php echo $id ?>" >
+            <input type="hidden" name="id" value="<?php echo $id ?>" >
+            <input type="hidden" name="roomID" value="<?php echo $roomID ?>" >
             <div class="booking-form-buttons">
                 <input type="submit" name="submit" value="Update">
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
             </div> 
-            <?php
-                }
-            }
-            ?>
         </form>
+        <?php
+                }
+                mysqli_free_result($result);
+                mysqli_close($DBC);
+            ?>
     </div>
 </body>
 </html>
