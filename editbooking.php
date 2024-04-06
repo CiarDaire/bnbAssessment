@@ -95,6 +95,14 @@
                 $id = 0;  
             };
 
+            if (isset($_POST['roomID']) and !empty($_POST['roomID']) and is_integer(intval($_POST['roomID']))) {
+                $roomID = cleanInput($_POST['roomID']);
+            } else {
+                $error++;
+                $msg .= 'Invalid room selection ';
+                $roomID = 0;
+            }
+
             if (isset($_POST['roomname']) and !empty($_POST['roomname']) and is_string($_POST['roomname'])) {
                 $roomname = cleanInput($_POST['roomname']); 
             } else {
@@ -158,18 +166,17 @@
                 $msg .= 'Invalid room review '; 
                 $roomReview = ' ';  
             };
-            
-            // $update = "UPDATE booking 
-            // INNER JOIN room ON booking.roomID = room.roomID
-            // SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=?
-            // WHERE bookingID=" .$id;
 
             $update = "UPDATE booking 
-                SET checkinDate=?, checkoutDate=?, contactNumber=?, extras=?, roomReview=?
+                SET checkinDate=?, checkoutDate=?, contactNumber=?, extras=?, roomReview=?, roomID=?
                 WHERE bookingID=?";
 
             $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'sssssi', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $id);
+            if ($stmt === false) {
+                echo "<h2>Error: Failed to prepare the statement -> " . mysqli_error($DBC) . "</h2>";
+                exit;
+            }
+            mysqli_stmt_bind_param($stmt, 'sssssii', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $roomID, $id);
 
             if (!mysqli_stmt_execute($stmt)) {
                 echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
@@ -246,7 +253,6 @@
                 <textarea id="roomReview" name="roomReview"><?php echo $row['roomReview'] ?></textarea>
             </div>
             <input type="hidden" name="id" value="<?php echo $id ?>" >
-            
             <div class="booking-form-buttons">
                 <input type="submit" name="submit" value="Update">
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
