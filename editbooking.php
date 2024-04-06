@@ -56,9 +56,13 @@
 </head>
 <body>
     <?php
+        var_dump($_POST);
+    
         include "checksession.php";
         checkUser();
         loginStatus(); 
+
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         // assigns callable variable to database connection and provides error message if connection is unavailable
         include "config.php";
@@ -68,6 +72,7 @@
             exit;
         };
 
+        $roomID = 0;
         // if id exists 
         if ($_SERVER["REQUEST_METHOD"] == "GET"){
             $id = $_GET['id'];
@@ -91,16 +96,16 @@
                 $id = cleanInput($_POST['id']); 
             } else {
                 $error++; 
-                $msg .= 'Invalid room ID '; 
+                $msg .= 'Invalid ID '; 
                 $id = 0;  
             };
 
-            if (isset($_POST['room']) and !empty($_POST['room']) and is_integer(intval($_POST['room']))) {
-                $roomId = cleanInput($_POST['room']); 
+            if (isset($_POST['roomID']) and !empty($_POST['roomID']) and is_integer(intval($_POST['roomID']))) {
+                $roomID = cleanInput($_POST['roomID']); 
             } else {
                 $error++; 
                 $msg .= 'Invalid room ID '; 
-                $roomId = 0;  
+                $roomID = 0;  
             };
 
             if (isset($_POST['roomname']) and !empty($_POST['roomname']) and is_string($_POST['roomname'])) {
@@ -173,13 +178,14 @@
             WHERE bookingID=?";
 
             $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'sssssssiii', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $roomname, $roomtype, $beds, $id, $roomId);
+            mysqli_stmt_bind_param($stmt, 'sssssssiii', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $roomname, $roomtype, $beds, $id, $roomID);
 
             if (!mysqli_stmt_execute($stmt)) {
                 echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
             }else{
                 echo "<h2>Booking updated successfully</h2>";
             }
+           
             mysqli_stmt_close($stmt);
             
         }
@@ -213,8 +219,8 @@
                     $row = mysqli_fetch_assoc($result);
                 ?>
                 <div class="booking-form-input">
-                    <p><label for="room">Room (name, type, beds):</label></p>
-                    <select id="room" name="room" required>
+                    <p><label for="roomID">Room (name, type, beds):</label></p>
+                    <select id="roomID" name="roomID" required>
                         <?php
                             if ($roomrowcount > 0){
                                 while($room_row = mysqli_fetch_assoc($roomresult)){
@@ -249,7 +255,8 @@
                 <p><label for="roomReview">Room review:</label></p>
                 <textarea id="roomReview" name="roomReview"><?php echo $row['roomReview'] ?></textarea>
             </div>
-            <input type="hidden" name=id value="<?php echo $id ?>" >
+            <input type="hidden" name="id" value="<?php echo $id ?>" >
+            <input type="hidden" name="roomID" value="<?php echo $roomID ?>" >
             <div class="booking-form-buttons">
                 <input type="submit" name="submit" value="Update">
                 <a href="listbookings.php" class="cancelbtn">[Cancel]</a>
