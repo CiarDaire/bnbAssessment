@@ -56,13 +56,9 @@
 </head>
 <body>
     <?php
-        var_dump($_POST);
-    
         include "checksession.php";
         checkUser();
         loginStatus(); 
-
-        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         // assigns callable variable to database connection and provides error message if connection is unavailable
         include "config.php";
