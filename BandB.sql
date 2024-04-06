@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 30, 2024 at 08:11 PM
+-- Generation Time: Apr 06, 2024 at 11:48 AM
 -- Server version: 8.0.23
 -- PHP Version: 8.0.3
 
@@ -37,6 +37,18 @@ CREATE TABLE `booking` (
   `roomID` int UNSIGNED NOT NULL,
   `customerID` int UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `booking`
+--
+
+INSERT INTO `booking` (`bookingID`, `checkinDate`, `checkoutDate`, `contactNumber`, `extras`, `roomReview`, `roomID`, `customerID`) VALUES
+(3, '2024-03-05', '2024-03-11', '(009) 546 7464', 'nothing', 'something', 8, 13),
+(11, '2018-09-16', '2018-09-23', '(093) 434 3434', 'nothing', 'new review', 9, 15),
+(13, '2018-09-15', '2018-09-29', '(093) 434 3434', 'nofhdf', NULL, 11, 18),
+(18, '2018-09-16', '2018-09-22', '(093) 434 3434', 'mk,mf', NULL, 6, 10),
+(19, '2018-09-30', '2018-10-28', '(093) 434 3434', 'nfdmnfdmf', NULL, 12, 16),
+(21, '2018-10-07', '2018-10-11', '(093) 434 3434', 'nmn', NULL, 4, 12);
 
 -- --------------------------------------------------------
 
@@ -76,7 +88,8 @@ INSERT INTO `customer` (`customerID`, `firstname`, `lastname`, `email`, `passwor
 (17, 'Sopoline', 'Warner', 'vestibulum.nec.euismod@sitamet.co.uk', ''),
 (18, 'Burton', 'Parrish', 'consequat.nec.mollis@nequenonquam.org', ''),
 (19, 'Abbot', 'Rose', 'non@et.ca', ''),
-(20, 'Barry', 'Burks', 'risus@libero.net', '');
+(20, 'Barry', 'Burks', 'risus@libero.net', ''),
+(21, 'Ciar', 'Smythe', 'ciar.smythe@gmail.com', 'password');
 
 -- --------------------------------------------------------
 
@@ -143,13 +156,13 @@ ALTER TABLE `room`
 -- AUTO_INCREMENT for table `booking`
 --
 ALTER TABLE `booking`
-  MODIFY `bookingID` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `bookingID` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customerID` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `customerID` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `room`

@@ -95,6 +95,14 @@
                 $id = 0;  
             };
 
+            if (isset($_POST['room']) and !empty($_POST['room']) and is_integer(intval($_POST['room']))) {
+                $roomId = cleanInput($_POST['room']); 
+            } else {
+                $error++; 
+                $msg .= 'Invalid room ID '; 
+                $roomId = 0;  
+            };
+
             if (isset($_POST['roomname']) and !empty($_POST['roomname']) and is_string($_POST['roomname'])) {
                 $roomname = cleanInput($_POST['roomname']); 
             } else {
@@ -161,11 +169,12 @@
             
             $update = "UPDATE booking 
             INNER JOIN room ON booking.roomID = room.roomID
-            SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=? 
+            SET booking.checkinDate=?, booking.checkoutDate=?, booking.contactNumber=?, booking.extras=?, booking.roomReview=?, room.roomname=?, room.roomtype=?, room.beds=?, room.roomID=? 
             WHERE bookingID=?";
 
             $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'ssisssssi', $roomname, $roomtype, $beds, $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $id);
+            mysqli_stmt_bind_param($stmt, 'sssssssiii', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $roomname, $roomtype, $beds, $id, $roomId);
+
             if (!mysqli_stmt_execute($stmt)) {
                 echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
             }else{
@@ -175,7 +184,7 @@
             
         }
 
-        $query = 'SELECT booking.bookingID, booking.extras, booking.roomReview, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds
+        $query = 'SELECT booking.bookingID, booking.extras, booking.roomReview, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds, room.roomID
         FROM booking
         INNER JOIN room ON booking.roomID = room.roomID
         WHERE booking.bookingID = ' .$id;
@@ -199,21 +208,27 @@
         <form method="POST" action="editbooking.php">
             <!-- Typo fixed - removed extra 'for' -->
             <h3>Booking made for Test</h3>
-            <div class="booking-form-input">
-                <p><label for="room">Room (name, type, beds):</label></p>
-                <select id="room" name="room" required>
-                    <?php
-                        if ($roomrowcount > 0){
-                            while($row = mysqli_fetch_assoc($roomresult)){
-                                echo '<option value=" ' .$row['roomID'] .'">' .$row['roomname'] .', ' .$row['roomtype'] .', ' .$row['beds'] .'</option>' .PHP_EOL;}
-                            };
-                    ?>
-                </select>
-            </div>
             <?php
                 if($rowcount > 0){
-                    $row = mysqli_fetch_assoc($result)
-            ?>
+                    $row = mysqli_fetch_assoc($result);
+                ?>
+                <div class="booking-form-input">
+                    <p><label for="room">Room (name, type, beds):</label></p>
+                    <select id="room" name="room" required>
+                        <?php
+                            if ($roomrowcount > 0){
+                                while($room_row = mysqli_fetch_assoc($roomresult)){
+                                    if ($room_row['roomID'] == $row['roomID']) {
+                                        echo '<option value="' .$room_row['roomID'] .'" selected>' .$room_row['roomname'] .', ' .$room_row['roomtype'] .', ' .$room_row['beds'] .'</option>' .PHP_EOL;
+                                    } else {
+                                        echo '<option value="' .$room_row['roomID'] .'">' .$room_row['roomname'] .', ' .$room_row['roomtype'] .', ' .$room_row['beds'] .'</option>' .PHP_EOL;
+                                    }
+                                }
+                            }
+                        ?>
+                    </select>
+                </div>
+            
             <div class="booking-form-input">
                 <p><label for="checkinDate">Checkin date:</label></p>
                 <input id="checkinDate" name="checkinDate" type="text" maxlength="11" value="<?php echo $row['checkinDate'] ?>" required>
