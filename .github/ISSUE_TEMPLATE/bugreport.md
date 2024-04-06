@@ -1,3 +1,12 @@
+---
+name: Bug report
+about: Issue report for bnb website
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 name: Bug report for bnb
 labels: ["bug", "needs-triage"]
 body:
