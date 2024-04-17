@@ -1,12 +1,15 @@
 <!-- Assumes user is logged in, otherwise they will be redirected to login/registration page. -->
-<!DOCTYPE html>
-<html lang="en">
+
+<!DOCTYPE HTML>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit a booking</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="/resources/demos/style.css">
+    <meta name="description" content="website description" />
+    <meta name="keywords" content="website keywords, website keywords" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="original template/style/style.css" title="style" />
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script>
@@ -41,169 +44,207 @@
             });
         });
     </script>
-    <style>
-        .return-links{display: flex; flex-direction: row;}
-        .return-links a{text-decoration: underline;}
-        .booking-form-input{display: flex; flex-direction: row; align-items: center; height: 2.5em;}
-        p{padding-right: 0.5em;}
-        .booking-form-input select{width:10em;}
-        .booking-form-textarea{display: flex; flex-direction: row; align-items: flex-end;}
-        .booking-form-textarea textarea{width:20em; height: 7em;}
-        .booking-form-textarea p{margin-bottom: 0;}
-        .booking-form-buttons{padding-top:1em;}
-        .cancelbtn{text-decoration: underline;}
-    </style>
 </head>
 <body>
     <?php
-        include "checksession.php";
-        checkUser();
-        loginStatus(); 
+    include 'checksession.php';
+    checkUser();
+    if (isset($_POST['logout'])) {
+        logout();
+        exit();
+    }
+    // assigns callable variable to database connection and provides error message if connection is unavailable
+    include "config.php";
+    $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
+    if (mysqli_connect_errno()) {
+        echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
+        exit;
+    };
 
-        // assigns callable variable to database connection and provides error message if connection is unavailable
-        include "config.php";
-        $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
-        if (mysqli_connect_errno()) {
-            echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
+    // if id exists 
+    if ($_SERVER["REQUEST_METHOD"] == "GET"){
+        $id = $_GET['id'];
+        // if its empty or not a numerical data
+        if(empty($id) or !is_numeric($id)){
+            echo '<h2>The booking ID is invalid.</h2>';
             exit;
+        }
+    }
+
+    // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
+    function cleanInput($data){
+        return htmlspecialchars(stripslashes((trim($data))));
+    }
+
+    if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Update')){
+        $error = 0;
+        $msg = "Error: ";
+
+        if (isset($_POST['id']) and !empty($_POST['id']) and is_integer(intval($_POST['id']))) {
+            $id = cleanInput($_POST['id']); 
+        } else {
+            $error++; 
+            $msg .= 'Invalid ID '; 
+            $id = 0;  
         };
 
-        // if id exists 
-        if ($_SERVER["REQUEST_METHOD"] == "GET"){
-            $id = $_GET['id'];
-            // if its empty or not a numerical data
-            if(empty($id) or !is_numeric($id)){
-                echo '<h2>The booking ID is invalid.</h2>';
-                exit;
-            }
+        if (isset($_POST['roomID']) and !empty($_POST['roomID']) and is_integer(intval($_POST['roomID']))) {
+            $roomID = cleanInput($_POST['roomID']);
+        } else {
+            $error++;
+            $msg .= 'Invalid room selection ';
+            $roomID = 0;
         }
 
-        // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
-        function cleanInput($data){
-            return htmlspecialchars(stripslashes((trim($data))));
+        if (isset($_POST['roomname']) and !empty($_POST['roomname']) and is_string($_POST['roomname'])) {
+            $roomname = cleanInput($_POST['roomname']); 
+        } else {
+            $error++; 
+            $msg .= 'Invalid roomname '; 
+            $roomname = ' ';  
+        };
+
+        if (isset($_POST['roomtype']) and !empty($_POST['roomtype']) and is_string($_POST['roomtype'])) {
+            $roomtype = cleanInput($_POST['roomtype']); 
+        } else {
+            $error++; 
+            $msg .= 'Invalid roomtype '; 
+            $roomtype = ' ';  
+        };
+
+        if (isset($_POST['beds']) and !empty($_POST['beds']) and is_integer(intval($_POST['beds']))) {
+            $beds = cleanInput($_POST['beds']); 
+        } else {
+            $error++; 
+            $msg .= 'Invalid number of beds '; 
+            $beds = 0;  
+        };
+
+        if (isset($_POST['checkinDate']) and !empty($_POST['checkinDate']) and is_string($_POST['checkinDate'])) {
+            $checkinDate = cleanInput($_POST['checkinDate']); 
+        } else {
+            $error++;
+            $msg .= 'Invalid check in date ';
+            $checkinDate = ' ';  
+        };
+
+        if (isset($_POST['checkoutDate']) and !empty($_POST['checkoutDate']) and is_string($_POST['checkoutDate'])) {
+            $checkoutDate = cleanInput($_POST['checkoutDate']); 
+        } else {
+            $error++;
+            $msg .= 'Invalid check out date ';
+            $checkoutDate = ' ';  
+        };
+
+        if (isset($_POST['contactNumber']) and !empty($_POST['contactNumber']) and is_string($_POST['contactNumber'])) {
+            $contactNumber = cleanInput($_POST['contactNumber']); 
+        } else {
+            $error++; 
+            $msg .= 'Invalid room ID '; 
+            $contactNumber = ' ';  
+        };
+
+        if (isset($_POST['extras']) and !empty($_POST['extras']) and is_string($_POST['extras'])) {
+            $extras = cleanInput($_POST['extras']); 
+        } else {
+            $error++; 
+            $msg .= 'Invalid comment in extras'; 
+            $extras = ' ';  
+        };
+
+        if (isset($_POST['roomReview']) and !empty($_POST['roomReview']) and is_string($_POST['roomReview'])) {
+            $roomReview = cleanInput($_POST['roomReview']); 
+        } else {
+            $error++; 
+            $msg .= 'Invalid room review '; 
+            $roomReview = ' ';  
+        };
+
+        $update = "UPDATE booking 
+            SET checkinDate=?, checkoutDate=?, contactNumber=?, extras=?, roomReview=?, roomID=?
+            WHERE bookingID=?";
+
+        $stmt = mysqli_prepare($DBC, $update);
+        if ($stmt === false) {
+            echo "<h2>Error: Failed to prepare the statement -> " . mysqli_error($DBC) . "</h2>";
+            exit;
         }
+        mysqli_stmt_bind_param($stmt, 'sssssii', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $roomID, $id);
 
-        if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Update')){
-            $error = 0;
-            $msg = "Error: ";
-
-            if (isset($_POST['id']) and !empty($_POST['id']) and is_integer(intval($_POST['id']))) {
-                $id = cleanInput($_POST['id']); 
-            } else {
-                $error++; 
-                $msg .= 'Invalid ID '; 
-                $id = 0;  
-            };
-
-            if (isset($_POST['roomID']) and !empty($_POST['roomID']) and is_integer(intval($_POST['roomID']))) {
-                $roomID = cleanInput($_POST['roomID']);
-            } else {
-                $error++;
-                $msg .= 'Invalid room selection ';
-                $roomID = 0;
-            }
-
-            if (isset($_POST['roomname']) and !empty($_POST['roomname']) and is_string($_POST['roomname'])) {
-                $roomname = cleanInput($_POST['roomname']); 
-            } else {
-                $error++; 
-                $msg .= 'Invalid roomname '; 
-                $roomname = ' ';  
-            };
-
-            if (isset($_POST['roomtype']) and !empty($_POST['roomtype']) and is_string($_POST['roomtype'])) {
-                $roomtype = cleanInput($_POST['roomtype']); 
-            } else {
-                $error++; 
-                $msg .= 'Invalid roomtype '; 
-                $roomtype = ' ';  
-            };
-
-            if (isset($_POST['beds']) and !empty($_POST['beds']) and is_integer(intval($_POST['beds']))) {
-                $beds = cleanInput($_POST['beds']); 
-            } else {
-                $error++; 
-                $msg .= 'Invalid number of beds '; 
-                $beds = 0;  
-            };
-
-            if (isset($_POST['checkinDate']) and !empty($_POST['checkinDate']) and is_string($_POST['checkinDate'])) {
-                $checkinDate = cleanInput($_POST['checkinDate']); 
-            } else {
-                $error++;
-                $msg .= 'Invalid check in date ';
-                $checkinDate = ' ';  
-            };
-
-            if (isset($_POST['checkoutDate']) and !empty($_POST['checkoutDate']) and is_string($_POST['checkoutDate'])) {
-                $checkoutDate = cleanInput($_POST['checkoutDate']); 
-            } else {
-                $error++;
-                $msg .= 'Invalid check out date ';
-                $checkoutDate = ' ';  
-            };
-
-            if (isset($_POST['contactNumber']) and !empty($_POST['contactNumber']) and is_string($_POST['contactNumber'])) {
-                $contactNumber = cleanInput($_POST['contactNumber']); 
-            } else {
-                $error++; 
-                $msg .= 'Invalid room ID '; 
-                $contactNumber = ' ';  
-            };
-
-            if (isset($_POST['extras']) and !empty($_POST['extras']) and is_string($_POST['extras'])) {
-                $extras = cleanInput($_POST['extras']); 
-            } else {
-                $error++; 
-                $msg .= 'Invalid comment in extras'; 
-                $extras = ' ';  
-            };
-
-            if (isset($_POST['roomReview']) and !empty($_POST['roomReview']) and is_string($_POST['roomReview'])) {
-                $roomReview = cleanInput($_POST['roomReview']); 
-            } else {
-                $error++; 
-                $msg .= 'Invalid room review '; 
-                $roomReview = ' ';  
-            };
-
-            $update = "UPDATE booking 
-                SET checkinDate=?, checkoutDate=?, contactNumber=?, extras=?, roomReview=?, roomID=?
-                WHERE bookingID=?";
-
-            $stmt = mysqli_prepare($DBC, $update);
-            if ($stmt === false) {
-                echo "<h2>Error: Failed to prepare the statement -> " . mysqli_error($DBC) . "</h2>";
-                exit;
-            }
-            mysqli_stmt_bind_param($stmt, 'sssssii', $checkinDate, $checkoutDate, $contactNumber, $extras, $roomReview, $roomID, $id);
-
-            if (!mysqli_stmt_execute($stmt)) {
-                echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
-            }else{
-                echo "<h2>Booking updated successfully</h2>";
-            }
-            mysqli_stmt_close($stmt);
-            
+        if (!mysqli_stmt_execute($stmt)) {
+            echo "<h2>Error: Booking could not be updated-> " .mysqli_error($DBC) ."</h2>";
+        }else{
+            echo "<h2>Booking updated successfully</h2>";
         }
+        mysqli_stmt_close($stmt);
+        
+    }
 
-        $query = 'SELECT booking.bookingID, booking.extras, booking.roomReview, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds, room.roomID
-        FROM booking
-        INNER JOIN room ON booking.roomID = room.roomID
-        WHERE booking.bookingID = ' .$id;
+    $query = 'SELECT booking.bookingID, booking.extras, booking.roomReview, booking.checkinDate, booking.checkoutDate, booking.contactNumber, room.roomname, room.roomtype, room.beds, room.roomID
+    FROM booking
+    INNER JOIN room ON booking.roomID = room.roomID
+    WHERE booking.bookingID = ' .$id;
 
-        $result = mysqli_query($DBC, $query);
-        $rowcount = mysqli_num_rows($result);
+    $result = mysqli_query($DBC, $query);
+    $rowcount = mysqli_num_rows($result);
 
-        $roomquery = 'SELECT * FROM room';
-        $roomresult = mysqli_query($DBC, $roomquery);
-        $roomrowcount = mysqli_num_rows($roomresult);
+    $roomquery = 'SELECT * FROM room';
+    $roomresult = mysqli_query($DBC, $roomquery);
+    $roomrowcount = mysqli_num_rows($roomresult);
 
-        $customerquery = 'SELECT customerID, firstname, lastname FROM customer';
-        $customerresult = mysqli_query($DBC, $customerquery);
-        $customerrowcount = mysqli_num_rows($customerresult);
+    $customerquery = 'SELECT customerID, firstname, lastname FROM customer';
+    $customerresult = mysqli_query($DBC, $customerquery);
+    $customerrowcount = mysqli_num_rows($customerresult);
     ?>
-    <div class="edit-booking-form">
+    <div id="main">
+    <div id="header">
+        <div id="logo">
+        <div id="logo_text">
+            <h1><a href="index.html"><span class="logo_colour">Ongaonga Bed & Breakfast</span></a></h1>
+            <h2>Make yourself at home is our slogan. We offer some of the best beds on the east coast. Sleep well and rest well.</h2>
+        </div>
+        </div>
+        <div id="menubar">
+        <ul id="menu">
+            <li><a href="index.php">Home</a></li>
+            <li><a href="listrooms.php">Rooms</a></li>
+            <li class="selected"><a href="listbookings.php">Bookings</a></li>
+            <li><a href="listcustomers.php">Customers</a></li>
+        </ul>
+        </div>
+    </div>
+    <div id="site_content">
+        <div class="sidebar">
+        <?php
+            loginStatus();
+        ?>
+        <form method="POST">
+            <input  type="submit" name="logout" value="Logout">   
+        </form> 
+        <h3>Latest News</h3>
+        <h4>New Website Launched</h4>
+        <h5>July 1st, 2014</h5>
+        <p>2014 sees the redesign of our website. Take a look around and let us know what you think.<br /><a href="#">Read more</a></p>
+        <p></p>
+        <h4>New Website Launched</h4>
+        <h5>July 1st, 2014</h5>
+        <p>2014 sees the redesign of our website. Take a look around and let us know what you think.<br /><a href="#">Read more</a></p>
+        <h3>Useful Links</h3>
+        <ul>
+            <li><a href="#">Whitecliffe Tech</a></li>
+            <li><a href="#">iQualify</a></li>
+            <li><a href="#">no link</a></li>
+            <li><a href="#">Privacy Statement</a></li>
+        </ul>
+        <h3>Search</h3>
+        <form method="post" action="#" id="search_form">
+            <p>
+            <input class="search" type="text" name="search_field" value="Enter keywords....." />
+            <input name="search" type="image" style="border: 0; margin: 0 0 -9px 5px;" src="converted template/style/search.png" alt="Search" title="Search" />
+            </p>
+        </form>
+        </div>
+        <div id="content">
         <h1>Edit a booking</h1>
         <div class="return-links">
             <h2><a href="listbookings.php">[Return to the Bookings listing]</a><a href="/bnb/">[Return to the main page]</a></h2>
@@ -263,6 +304,7 @@
                 mysqli_free_result($result);
                 mysqli_close($DBC);
             ?>
+    </div>
     </div>
 </body>
 </html>

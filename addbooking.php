@@ -1,15 +1,17 @@
 <!-- Assumes user is logged in, otherwise they will be redirected to login/registration page. 
 
 I would also assume that the datepicker date range would cover from current day onwards to match with customers regardless of when they have logged in to make a booking, however for the purpose of matching the design brief in its entirely at this point, it has been changed so that its set in 2018. -->
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Make a booking</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <meta name="description" content="website description" />
+    <meta name="keywords" content="website keywords, website keywords" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="original template/style/style.css" title="style" />
     <script>
         // for date picker and date range
         $(document).ready(function() {
@@ -76,11 +78,13 @@ I would also assume that the datepicker date range would cover from current day 
 </head>
 <body>
     <?php
-        include "checksession.php";
-        checkUser();
-        loginStatus(); 
-        
-        include "config.php";
+    include 'checksession.php';
+    checkUser();
+    if (isset($_POST['logout'])) {
+        logout();
+        exit();
+    }
+    include "config.php";
         $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
         if (mysqli_connect_errno()) {
             echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
@@ -156,7 +160,55 @@ I would also assume that the datepicker date range would cover from current day 
         $customerresult = mysqli_query($DBC, $customerquery);
         $customerrowcount = mysqli_num_rows($customerresult);
     ?>
-    <div class="booking-form">
+    <div id="main">
+    <div id="header">
+        <div id="logo">
+        <div id="logo_text">
+            <h1><a href="index.html"><span class="logo_colour">Ongaonga Bed & Breakfast</span></a></h1>
+            <h2>Make yourself at home is our slogan. We offer some of the best beds on the east coast. Sleep well and rest well.</h2>
+        </div>
+        </div>
+        <div id="menubar">
+        <ul id="menu">
+          <li><a href="index.php">Home</a></li>
+          <li class="selected"><a href="listrooms.php">Rooms</a></li>
+          <li><a href="listbookings.php">Bookings</a></li>
+          <li><a href="listcustomers.php">Customers</a></li>
+        </ul>
+        </div>
+    </div>
+    <div id="site_content">
+        <div class="sidebar">
+        <?php
+            loginStatus();
+        ?>
+        <form method="POST">
+            <input  type="submit" name="logout" value="Logout">   
+        </form> 
+        <h3>Latest News</h3>
+        <h4>New Website Launched</h4>
+        <h5>July 1st, 2014</h5>
+        <p>2014 sees the redesign of our website. Take a look around and let us know what you think.<br /><a href="#">Read more</a></p>
+        <p></p>
+        <h4>New Website Launched</h4>
+        <h5>July 1st, 2014</h5>
+        <p>2014 sees the redesign of our website. Take a look around and let us know what you think.<br /><a href="#">Read more</a></p>
+        <h3>Useful Links</h3>
+        <ul>
+            <li><a href="#">Whitecliffe Tech</a></li>
+            <li><a href="#">iQualify</a></li>
+            <li><a href="#">no link</a></li>
+            <li><a href="#">Privacy Statement</a></li>
+        </ul>
+        <h3>Search</h3>
+        <form method="post" action="#" id="search_form">
+            <p>
+            <input class="search" type="text" name="search_field" value="Enter keywords....." />
+            <input name="search" type="image" style="border: 0; margin: 0 0 -9px 5px;" src="converted template/style/search.png" alt="Search" title="Search" />
+            </p>
+        </form>
+        </div>
+        <div id="content">
         <h1>Make a booking</h1>
         <div class="return-links">
             <h2><a href="listbookings.php">[Return to the Bookings listing]</a><a href="/bnb/">[Return to the main page]</a></h2>
@@ -210,13 +262,11 @@ I would also assume that the datepicker date range would cover from current day 
     </div>
     <hr>
     <h3>Search for room availability</h3>
-    <div class="search">
-        <p><label for="startDate">Start date:</label></p>
-        <input id="startDate" name="startDate" type="text" required>
-        <p><label for="endDate">End date:</label></p>
-        <input id="endDate" name="endDate" type="text" required>
-        <p><input type="button" value="Search availability" onclick="filterRooms()"><p>
-    </div>
+    <p><label for="startDate">Start date:</label>
+    <input id="startDate" name="startDate" type="text" required></p>
+    <p><label for="endDate">End date:</label>
+    <input id="endDate" name="endDate" type="text" required></p>
+    <p><input type="button" value="Search availability" onclick="filterRooms()"><p>
     <table id="filteredRooms" border='1'>
         <thead>
             <tr>
@@ -227,16 +277,10 @@ I would also assume that the datepicker date range would cover from current day 
             </tr>
         </thead>
     </table>
+    </div>
+    <div id="footer">
+        Copyright &copy; black_white | <a href="http://validator.w3.org/check?uri=referer">HTML5</a> | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a> | <a href="http://www.html5webtemplates.co.uk">Free CSS Templates</a>
+    </div>
+    </div>
 </body>
 </html>
-
-<!-- $("#Add").submit(function(event){
-                event.preventDefault();
-                var endDate = $('#endDate').val();
-                var startDate = $('#startDate').val();
-
-                if (endDate > startDate){
-                    alert("Denied- Your bookings start date must be before your end date.");
-                    return false;
-                }
-            }) -->
