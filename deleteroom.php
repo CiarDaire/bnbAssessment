@@ -1,97 +1,159 @@
 <!DOCTYPE HTML>
 <html>
-    <head>
-        <title>Delete Room</title>
-        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    </head>
- <body>
+<head>
+    <title>Delete Room</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <meta name="description" content="website description" />
+    <meta name="keywords" content="website keywords, website keywords" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="original template/style/style.css" title="style" />
+</head>
+<body>
+    <?php
+    include 'checksession.php';
+    checkUser();
+    if (isset($_POST['logout'])) {
+        logout();
+        exit();
+    }
+    include "config.php"; //load in any variables
+    $DBC = mysqli_connect("127.0.0.1", DBUSER, DBPASSWORD, DBDATABASE);
 
-<?php
-include "config.php"; //load in any variables
-$DBC = mysqli_connect("127.0.0.1", DBUSER, DBPASSWORD, DBDATABASE);
+    //insert DB code from here onwards
+    //check if the connection was good
+    if (mysqli_connect_errno()) {
+        echo "Error: Unable to connect to MySQL. ".mysqli_connect_error() ;
+        exit; //stop processing the page further
+    }
 
-//insert DB code from here onwards
-//check if the connection was good
-if (mysqli_connect_errno()) {
-    echo "Error: Unable to connect to MySQL. ".mysqli_connect_error() ;
-    exit; //stop processing the page further
-}
+    //function to clean input but not validate type and content
+    function cleanInput($data) {  
+    return htmlspecialchars(stripslashes(trim($data)));
+    }
 
-//function to clean input but not validate type and content
-function cleanInput($data) {  
-  return htmlspecialchars(stripslashes(trim($data)));
-}
+    //retrieve the Roomid from the URL
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        $id = $_GET['id'];
+        if (empty($id) or !is_numeric($id)) {
+            echo "<h2>Invalid Room ID</h2>"; //simple error feedback
+            exit;
+        } 
+    }
 
-//retrieve the Roomid from the URL
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    $id = $_GET['id'];
-    if (empty($id) or !is_numeric($id)) {
-        echo "<h2>Invalid Room ID</h2>"; //simple error feedback
-        exit;
-    } 
-}
-
-//the data was sent using a formtherefore we use the $_POST instead of $_GET
-//check if we are saving data first by checking if the submit button exists in the array
-if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Delete')) {     
-    $error = 0; //clear our error flag
-    $msg = 'Error: ';  
-//RoomID (sent via a form it is a string not a number so we try a type conversion!)    
-    if (isset($_POST['id']) and !empty($_POST['id']) and is_integer(intval($_POST['id']))) {
-       $id = cleanInput($_POST['id']); 
-    } else {
-       $error++; //bump the error flag
-       $msg .= 'Invalid Room ID '; //append error message
-       $id = 0;  
-    }        
-    
-//save the Room data if the error flag is still clear and Room id is > 0
-    if ($error == 0 and $id > 0) {
-        $query = "DELETE FROM Room WHERE RoomID=?";
-        $stmt = mysqli_prepare($DBC,$query); //prepare the query
-        mysqli_stmt_bind_param($stmt,'i', $id); 
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);    
-        echo "<h2>Room details deleted.</h2>";     
+    //the data was sent using a formtherefore we use the $_POST instead of $_GET
+    //check if we are saving data first by checking if the submit button exists in the array
+    if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Delete')) {     
+        $error = 0; //clear our error flag
+        $msg = 'Error: ';  
+    //RoomID (sent via a form it is a string not a number so we try a type conversion!)    
+        if (isset($_POST['id']) and !empty($_POST['id']) and is_integer(intval($_POST['id']))) {
+        $id = cleanInput($_POST['id']); 
+        } else {
+        $error++; //bump the error flag
+        $msg .= 'Invalid Room ID '; //append error message
+        $id = 0;  
+        }        
         
-    } else { 
-      echo "<h2>$msg</h2>".PHP_EOL;
-    }      
+    //save the Room data if the error flag is still clear and Room id is > 0
+        if ($error == 0 and $id > 0) {
+            $query = "DELETE FROM Room WHERE RoomID=?";
+            $stmt = mysqli_prepare($DBC,$query); //prepare the query
+            mysqli_stmt_bind_param($stmt,'i', $id); 
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);    
+            echo "<h2>Room details deleted.</h2>";     
+            
+        } else { 
+        echo "<h2>$msg</h2>".PHP_EOL;
+        }      
+    }
 
-}
+    //prepare a query and send it to the server
+    //NOTE for simplicity purposes ONLY we are not using prepared queries
+    //make sure you ALWAYS use prepared queries when creating custom SQL like below
+    $query = 'SELECT * FROM Room WHERE Roomid='.$id;
+    $result = mysqli_query($DBC,$query);
+    $rowcount = mysqli_num_rows($result); 
+    ?>
+    <div id="main">
+    <div id="header">
+        <div id="logo">
+        <div id="logo_text">
+            <h1><a href="index.html"><span class="logo_colour">Ongaonga Bed & Breakfast</span></a></h1>
+            <h2>Make yourself at home is our slogan. We offer some of the best beds on the east coast. Sleep well and rest well.</h2>
+        </div>
+        </div>
+        <div id="menubar">
+        <ul id="menu">
+            <li><a href="index.php">Home</a></li>
+            <li class="selected"><a href="listrooms.php">Rooms</a></li>
+            <li><a href="listbookings.php">Bookings</a></li>
+            <li><a href="listcustomers.php">Customers</a></li>
+        </ul>
+        </div>
+    </div>
+    <div id="site_content">
+        <div class="sidebar">
+        <?php
+            loginStatus();
+        ?>
+        <form method="POST">
+            <input  type="submit" name="logout" value="Logout">   
+        </form> 
+        <h3>Latest News</h3>
+        <h4>New Website Launched</h4>
+        <h5>July 1st, 2014</h5>
+        <p>2014 sees the redesign of our website. Take a look around and let us know what you think.<br /><a href="#">Read more</a></p>
+        <p></p>
+        <h4>New Website Launched</h4>
+        <h5>July 1st, 2014</h5>
+        <p>2014 sees the redesign of our website. Take a look around and let us know what you think.<br /><a href="#">Read more</a></p>
+        <h3>Useful Links</h3>
+        <ul>
+            <li><a href="#">Whitecliffe Tech</a></li>
+            <li><a href="#">iQualify</a></li>
+            <li><a href="#">no link</a></li>
+            <li><a href="#">Privacy Statement</a></li>
+        </ul>
+        <h3>Search</h3>
+        <form method="post" action="#" id="search_form">
+            <p>
+            <input class="search" type="text" name="search_field" value="Enter keywords....." />
+            <input name="search" type="image" style="border: 0; margin: 0 0 -9px 5px;" src="converted template/style/search.png" alt="Search" title="Search" />
+            </p>
+        </form>
+        </div>
+        <div id="content">
+        <h1>Room details preview before deletion</h1>
+        <h2><a href='listrooms.php'>[Return to the Room listing]</a><a href='/bnb/'>[Return to the main page]</a></h2>
+        <?php
 
-//prepare a query and send it to the server
-//NOTE for simplicity purposes ONLY we are not using prepared queries
-//make sure you ALWAYS use prepared queries when creating custom SQL like below
-$query = 'SELECT * FROM Room WHERE Roomid='.$id;
-$result = mysqli_query($DBC,$query);
-$rowcount = mysqli_num_rows($result); 
-?>
-<h1>Room details preview before deletion</h1>
-<h2><a href='listrooms.php'>[Return to the Room listing]</a><a href='/bnb/'>[Return to the main page]</a></h2>
-<?php
+        //makes sure we have the Room
+        if ($rowcount > 0) {  
+            echo "<fieldset><legend>Room detail #$id</legend><dl>"; 
+            $row = mysqli_fetch_assoc($result);
+            echo "<dt>Room name:</dt><dd>".$row['roomname']."</dd>".PHP_EOL;
+            echo "<dt>Description:</dt><dd>".$row['description']."</dd>".PHP_EOL;
+            echo "<dt>Room type:</dt><dd>".$row['roomtype']."</dd>".PHP_EOL;
+            echo "<dt>Beds:</dt><dd>".$row['beds']."</dd>".PHP_EOL; 
+            echo '</dl></fieldset>'.PHP_EOL;  
+        ?><form method="POST" action="deleteroom.php">
+            <h2>Are you sure you want to delete this Room?</h2>
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
+            <input type="submit" name="submit" value="Delete">
+            <a href="listrooms.php">[Cancel]</a>
+            </form>
+        <?php    
+        } else echo "<h2>No Room found, possbily deleted!</h2>"; //suitable feedback
 
-//makes sure we have the Room
-if ($rowcount > 0) {  
-    echo "<fieldset><legend>Room detail #$id</legend><dl>"; 
-    $row = mysqli_fetch_assoc($result);
-    echo "<dt>Room name:</dt><dd>".$row['roomname']."</dd>".PHP_EOL;
-    echo "<dt>Description:</dt><dd>".$row['description']."</dd>".PHP_EOL;
-    echo "<dt>Room type:</dt><dd>".$row['roomtype']."</dd>".PHP_EOL;
-    echo "<dt>Beds:</dt><dd>".$row['beds']."</dd>".PHP_EOL; 
-    echo '</dl></fieldset>'.PHP_EOL;  
-   ?><form method="POST" action="deleteroom.php">
-     <h2>Are you sure you want to delete this Room?</h2>
-     <input type="hidden" name="id" value="<?php echo $id; ?>">
-     <input type="submit" name="submit" value="Delete">
-     <a href="listrooms.php">[Cancel]</a>
-     </form>
-<?php    
-} else echo "<h2>No Room found, possbily deleted!</h2>"; //suitable feedback
-
-mysqli_free_result($result); //free any memory used by the query
-mysqli_close($DBC); //close the connection once done
-?>
-</table>
+        mysqli_free_result($result); //free any memory used by the query
+        mysqli_close($DBC); //close the connection once done
+        ?>
+        </table>
+    </div>
+    <div id="footer">
+        Copyright &copy; black_white | <a href="http://validator.w3.org/check?uri=referer">HTML5</a> | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a> | <a href="http://www.html5webtemplates.co.uk">Free CSS Templates</a>
+    </div>
+    </div>
 </body>
 </html>

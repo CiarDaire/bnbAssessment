@@ -1,77 +1,116 @@
 <!-- Assumes user is logged in, otherwise they will be redirected to login/registration page. -->
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add/edit room review based on booking</title>
-    <link rel="stylesheet" href="/resources/demos/style.css">
-    <style>
-        .return-links{display: flex; flex-direction: row;}
-        .return-links a{text-decoration: underline;}
-        .booking-form-input{display: flex; flex-direction: row; align-items: center; height: 2.5em;}
-        p{padding-right: 0.5em;}
-        .booking-form-input select{width:10em;}
-        .booking-form-textarea{display: flex; flex-direction: row; align-items: flex-end;}
-        .booking-form-textarea textarea{width:20em; height: 7em;}
-        .booking-form-textarea p{margin-bottom: 0;}
-        .booking-form-buttons{padding-top:1em;}
-        .cancelbtn{text-decoration: underline;}
-    </style>
+<title>Add/edit room review based on booking</title>
+    <meta name="description" content="website description" />
+    <meta name="keywords" content="website keywords, website keywords" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="original template/style/style.css" title="style" />
 </head>
 <body>
     <?php
-        include "checksession.php";
-        checkUser();
-        loginStatus(); 
-        
-        // assigns callable variable to database connection and provides error message if connection is unavailable
-        include "config.php";
-        $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
-        if (mysqli_connect_errno()) {
-            echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
+    include 'checksession.php';
+    checkUser();
+    if (isset($_POST['logout'])) {
+        logout();
+        exit();
+    }
+    // assigns callable variable to database connection and provides error message if connection is unavailable
+    include "config.php";
+    $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
+    if (mysqli_connect_errno()) {
+        echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
+        exit();
+    };
+
+    // if id exists 
+    if ($_SERVER["REQUEST_METHOD"] == "GET"){
+        $id = $_GET['id'];
+        // if its empty or not a numerical data
+        if(empty($id) or !is_numeric($id)){
+            echo '<h2>The booking ID is invalid.</h2>';
             exit();
-        };
-
-        // if id exists 
-        if ($_SERVER["REQUEST_METHOD"] == "GET"){
-            $id = $_GET['id'];
-            // if its empty or not a numerical data
-            if(empty($id) or !is_numeric($id)){
-                echo '<h2>The booking ID is invalid.</h2>';
-                exit();
-            }
         }
+    }
 
-        // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
-        function cleanInput($data){
-            return htmlspecialchars(stripslashes((trim($data))));
-        }
+    // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
+    function cleanInput($data){
+        return htmlspecialchars(stripslashes((trim($data))));
+    }
 
-        if (isset($_POST['submit']) and !empty($_POST['id']) and ($_POST['submit'] == 'Update')){
-            $id = cleanInput($_POST['id']);
-            $roomReview = cleanInput($_POST['roomReview']);
+    if (isset($_POST['submit']) and !empty($_POST['id']) and ($_POST['submit'] == 'Update')){
+        $id = cleanInput($_POST['id']);
+        $roomReview = cleanInput($_POST['roomReview']);
 
-            $update = "UPDATE booking SET booking.roomReview=?
-            WHERE bookingID=?";
+        $update = "UPDATE booking SET booking.roomReview=?
+        WHERE bookingID=?";
 
-            $stmt = mysqli_prepare($DBC, $update);
-            mysqli_stmt_bind_param($stmt, 'si', $roomReview, $id);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_close($stmt);
-            echo "<h2>Room review updated successfully</h2>"; 
-        }
+        $stmt = mysqli_prepare($DBC, $update);
+        mysqli_stmt_bind_param($stmt, 'si', $roomReview, $id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+        echo "<h2>Room review updated successfully</h2>"; 
+    }
 
-        $query = 'SELECT booking.bookingID, booking.roomReview
-        FROM booking
-        WHERE booking.bookingID = ' .$id;
+    $query = 'SELECT booking.bookingID, booking.roomReview
+    FROM booking
+    WHERE booking.bookingID = ' .$id;
 
-        $result = mysqli_query($DBC, $query);
-        $row = mysqli_fetch_assoc($result);
+    $result = mysqli_query($DBC, $query);
+    $row = mysqli_fetch_assoc($result);
 
-        $rowcount = mysqli_num_rows($result);
+    $rowcount = mysqli_num_rows($result);
     ?>
-    <div class="manage-review-form">
+    <div id="main">
+    <div id="header">
+        <div id="logo">
+        <div id="logo_text">
+            <h1><a href="index.html"><span class="logo_colour">Ongaonga Bed & Breakfast</span></a></h1>
+            <h2>Make yourself at home is our slogan. We offer some of the best beds on the east coast. Sleep well and rest well.</h2>
+        </div>
+        </div>
+        <div id="menubar">
+        <ul id="menu">
+            <li><a href="index.php">Home</a></li>
+            <li><a href="listrooms.php">Rooms</a></li>
+            <li class="selected"><a href="listbookings.php">Bookings</a></li>
+            <li><a href="listcustomers.php">Customers</a></li>
+        </ul>
+        </div>
+    </div>
+    <div id="site_content">
+        <div class="sidebar">
+        <?php
+            loginStatus();
+        ?>
+        <form method="POST">
+            <input  type="submit" name="logout" value="Logout">   
+        </form> 
+        <h3>Latest News</h3>
+        <h4>New Website Launched</h4>
+        <h5>July 1st, 2014</h5>
+        <p>2014 sees the redesign of our website. Take a look around and let us know what you think.<br /><a href="#">Read more</a></p>
+        <p></p>
+        <h4>New Website Launched</h4>
+        <h5>July 1st, 2014</h5>
+        <p>2014 sees the redesign of our website. Take a look around and let us know what you think.<br /><a href="#">Read more</a></p>
+        <h3>Useful Links</h3>
+        <ul>
+            <li><a href="#">Whitecliffe Tech</a></li>
+            <li><a href="#">iQualify</a></li>
+            <li><a href="#">no link</a></li>
+            <li><a href="#">Privacy Statement</a></li>
+        </ul>
+        <h3>Search</h3>
+        <form method="post" action="#" id="search_form">
+            <p>
+            <input class="search" type="text" name="search_field" value="Enter keywords....." />
+            <input name="search" type="image" style="border: 0; margin: 0 0 -9px 5px;" src="converted template/style/search.png" alt="Search" title="Search" />
+            </p>
+        </form>
+        </div>
+        <div id="content">
         <h1>Edit/add room review</h1>
         <div class="return-links">
             <h2><a href="listbookings.php">[Return to the Bookings listing]</a><a href="/bnb/">[Return to the main page]</a></h2>
