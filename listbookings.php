@@ -79,7 +79,7 @@ Future iteration will likely include filtering options by customer and booking p
             <li><a href="#">Whitecliffe Tech</a></li>
             <li><a href="#">iQualify</a></li>
             <li><a href="#">no link</a></li>
-            <li><a href="#">Privacy Statement</a></li>
+            <li><a href="privacy.php">Privacy Statement</a></li>
         </ul>
         <h3>Search</h3>
         <form method="post" action="#" id="search_form">

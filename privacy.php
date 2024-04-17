@@ -1,16 +1,14 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Ongaonga Bed & Breakfast</title>
-    <meta name="description" content="website description" />
-    <meta name="keywords" content="website keywords, website keywords" />
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Privacy Statement</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="original template/style/style.css" title="style" />
 </head>
 <body>
-    <?php
+<?php
     include 'checksession.php';
-
     if (isset($_POST['logout'])) {
         logout();
         exit();
@@ -26,24 +24,10 @@
         </div>
         <div id="menubar">
         <ul id="menu">
-            <?php
-            if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] ==1){
-            ?>
-            <li class="selected"><a href="index.php">Home</a></li>
-                <li><a href="listrooms.php">Rooms</a></li>
-                <li><a href="listbookings.php">Bookings</a></li>
-                <li><a href="listcustomers.php">Customers</a></li>
-            ?>
-            <?php
-            }else{
-            ?>
-                <li class="selected"><a href="index.php">Home</a></li>
-                <li><a href="listrooms.php">Rooms</a></li>
-                <li><a href="registercustomer.php">Register</a></li>
-                <li><a href="login.php">Login</a></li>
-            <?php
-            }
-            ?>
+          <li><a href="index.php">Home</a></li>
+          <li class="selected"><a href="listrooms.php">Rooms</a></li>
+          <li><a href="listbookings.php">Bookings</a></li>
+          <li><a href="listcustomers.php">Customers</a></li>
         </ul>
         </div>
     </div>
@@ -79,9 +63,23 @@
         </form>
         </div>
         <div id="content">
-        <h1>Welcome to the Ongaonga Bed & Breakfast</h1>
-        <p>The retired couple Mr and Mrs Smith have a large beautiful homestead in the Ongaonga Region. We live by ourselves have this beautifuly large heritage home which we have turned into a Bed & Breakfast (B&B). Our home is close to Napier, Waipukurau and Tikokino....</p>
-        </div>
+        <div id="content">
+            <h1>Our Privacy Statement</h1>
+    <p>We collect personal information from you, including information about your:</p>
+    <ul>
+        <li>name</li>
+        <li>contact information</li>
+        <li>location</li>
+    </ul>
+    <p>We collect your personal information in order to:</p>
+    <ul>
+        <li>create and manage bookings.</li>
+    </ul>
+    <p>Providing some information is optional. If you choose not to enter your name or contact details, we'll be unable to authenticate your booking or contact you regarding your booking.</p>
+    <p>We keep your information safe by storing it in an encrypted database and only allow our owners and staff to access necessary information.</p>
+    <p>We keep your information for as long as the account remains active, at which point we will securely destroy it by erasing all data once we receive no confirmation that you are still using the account.</p>
+    <p>You have the right to ask for a copy of any personal information we hold about you, and to ask for it to be corrected if you think it is wrong. If you’d like to ask for a copy of your information, or to have it corrected, please contact us at <a href="mailto:ongaongab&b@gmail.com">ongaongab&b@gmail.com</a>, or (09) 123 4567, or 9 City Street, Auckland.</p>
+    </div>
     </div>
     <div id="footer">
         Copyright &copy; black_white | <a href="http://validator.w3.org/check?uri=referer">HTML5</a> | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a> | <a href="http://www.html5webtemplates.co.uk">Free CSS Templates</a>
