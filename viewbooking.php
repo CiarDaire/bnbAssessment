@@ -19,13 +19,8 @@ Details will be updated after any edits/updates have been made. -->
     }
     loginStatus(); 
 
-    // assigns callable variable to database connection and provides error message if connection is unavailable
-    include "config.php";
-    $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
-    if (mysqli_connect_errno()) {
-        echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
-        exit();
-    };
+    // import database connection
+    include 'dbcConnect.php';
 
     // if id exists 
     if ($_SERVER["REQUEST_METHOD"] == "GET"){

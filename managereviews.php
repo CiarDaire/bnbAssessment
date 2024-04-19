@@ -16,13 +16,11 @@
         logout();
         exit();
     }
-    // assigns callable variable to database connection and provides error message if connection is unavailable
-    include "config.php";
-    $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
-    if (mysqli_connect_errno()) {
-        echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
-        exit();
-    };
+    
+    // import function to clean inputs
+    include 'cleanInput.php';
+    // import database connection
+    include 'dbcConnect.php';
 
     // if id exists 
     if ($_SERVER["REQUEST_METHOD"] == "GET"){
@@ -32,11 +30,6 @@
             echo '<h2>The booking ID is invalid.</h2>';
             exit();
         }
-    }
-
-    // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
-    function cleanInput($data){
-        return htmlspecialchars(stripslashes((trim($data))));
     }
 
     if (isset($_POST['submit']) and !empty($_POST['id']) and ($_POST['submit'] == 'Update')){

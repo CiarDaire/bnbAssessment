@@ -10,24 +10,21 @@
 </head>
 <body>
     <?php
+    // functions to handle login/logout sessions
     include 'checksession.php';
+
     checkUser();
+
+    // logout event
     if (isset($_POST['logout'])) {
         logout();
         exit();
     }
-    // assigns callable variable to database connection and provides error message if connection is unavailable
-    include "config.php";
-    $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
-    if (mysqli_connect_errno()) {
-        echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
-        exit();
-    };
-
-    // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
-    function cleanInput($data){
-        return htmlspecialchars(stripslashes((trim($data))));
-    }
+    
+    // import function to clean inputs
+    include 'cleanInput.php';
+    // import database connection
+    include 'dbcConnect.php';
 
     // if id exists 
     if ($_SERVER["REQUEST_METHOD"] == "GET"){

@@ -16,18 +16,11 @@
         logout();
         exit();
     }
-    include "config.php"; //load in any variables
-    $DBC = mysqli_connect("127.0.0.1", DBUSER, DBPASSWORD, DBDATABASE);
-
-    if (mysqli_connect_errno()) {
-      echo "Error: Unable to connect to MySQL. ".mysqli_connect_error() ;
-      exit; //stop processing the page further
-    };
-
-    //function to clean input but not validate type and content
-    function cleanInput($data) {  
-      return htmlspecialchars(stripslashes(trim($data)));
-    }
+    
+    // import function to clean inputs
+    include 'cleanInput.php';
+    // import database connection
+    include 'dbcConnect.php';
 
     //retrieve the roomid from the URL
     if ($_SERVER["REQUEST_METHOD"] == "GET") {

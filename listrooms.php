@@ -19,15 +19,8 @@
         exit();
     }
     
-    include "config.php"; //load in any variables
-    $DBC = mysqli_connect("127.0.0.1", DBUSER, DBPASSWORD, DBDATABASE);
-
-    //insert DB code from here onwards
-    //check if the connection was good
-    if (mysqli_connect_errno()) {
-        echo "Error: Unable to connect to MySQL. ".mysqli_connect_error() ;
-        exit; //stop processing the page further
-    }
+    // import database connection
+    include 'dbcConnect.php';
 
     //prepare a query and send it to the server
     $query = 'SELECT roomID,roomname,roomtype FROM room ORDER BY roomtype';

@@ -22,13 +22,8 @@ Future iteration will likely include filtering options by customer and booking p
     }
     loginStatus(); 
 
-    // assigns callable variable to database connection and provides error message if connection is unavailable
-    include "config.php";
-    $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
-    if (mysqli_connect_errno()) {
-        echo "Error: Unable to connect to MySQL Database". mysqli_connect_error();
-        exit();
-    }
+    // import database connection
+    include 'dbcConnect.php';
 
     // gets booking id, customers name, room name, and booking dates from database
     $query = 'SELECT booking.bookingID, customer.firstname, customer.lastname, room.roomname, booking.checkinDate, booking.checkoutDate

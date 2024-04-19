@@ -10,10 +10,7 @@
 </head>
 <body>
 <?php
-  //function to clean input but not validate type and content
-  function cleanInput($data) {  
-    return htmlspecialchars(stripslashes(trim($data)));
-  }
+  include 'cleanInput.php';
 
   //the data was sent using a formtherefore we use the $_POST instead of $_GET
   //check if we are saving data first by checking if the submit button exists in the array

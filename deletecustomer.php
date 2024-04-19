@@ -1,26 +1,16 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <title>View Customer</title>
+        <title>Delete Customer</title>
         <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     </head>
  <body>
 
 <?php
-include "config.php"; //load in any variables
-$DBC = mysqli_connect("127.0.0.1", DBUSER, DBPASSWORD, DBDATABASE);
-
-//insert DB code from here onwards
-//check if the connection was good
-if (mysqli_connect_errno()) {
-    echo "Error: Unable to connect to MySQL. ".mysqli_connect_error() ;
-    exit; //stop processing the page further
-}
-
-//function to clean input but not validate type and content
-function cleanInput($data) {  
-  return htmlspecialchars(stripslashes(trim($data)));
-}
+// import function to clean inputs
+include 'cleanInput.php';
+// import database connection
+include 'dbcConnect.php';
 
 //retrieve the customerid from the URL
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
