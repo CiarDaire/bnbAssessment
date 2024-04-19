@@ -32,7 +32,9 @@
     }
     //the data was sent using a formtherefore we use the $_POST instead of $_GET
     //check if we are saving data first by checking if the submit button exists in the array
-    if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Update')) {     
+    if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Update')) {  
+      $error = 0;   
+      $msg = "Error: ";
     //validate incoming data - only the first field is done for you in this example - rest is up to you do
         
     //roomID (sent via a form ti is a string not a number so we try a type conversion!)    
@@ -56,7 +58,7 @@
         if ($error == 0 and $id > 0) {
             $query = "UPDATE room SET roomname=?,description=?,roomtype=?,beds=? WHERE roomID=?";
             $stmt = mysqli_prepare($DBC,$query); //prepare the query
-            mysqli_stmt_bind_param($stmt,'sssi', $roomname, $description, $roomtype, $beds, $id); 
+            mysqli_stmt_bind_param($stmt,'ssssi', $roomname, $description, $roomtype, $beds, $id); 
             mysqli_stmt_execute($stmt);
             mysqli_stmt_close($stmt);    
             echo "<h2>Room details updated.</h2>";     
