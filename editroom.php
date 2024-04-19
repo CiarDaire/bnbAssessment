@@ -15,7 +15,7 @@
     if (isset($_POST['logout'])) {
         logout();
         exit();
-    }
+    } 
     
     // import function to clean inputs
     include 'cleanInput.php';
