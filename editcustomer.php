@@ -93,7 +93,7 @@
         if ($error == 0 and $id > 0) {
             $query = "UPDATE customer SET firstname=?,lastname=?,email=? WHERE customerID=?";
             $stmt = mysqli_prepare($DBC,$query); //prepare the query
-            mysqli_stmt_bind_param($stmt,'ssssi', $firstname, $lastname, $email,$username,$id); 
+            mysqli_stmt_bind_param($stmt,'sssi', $firstname, $lastname, $email, $id); 
             mysqli_stmt_execute($stmt);
             mysqli_stmt_close($stmt);    
             echo "<h2>customer details updated.</h2>";     
@@ -107,7 +107,7 @@
     $query = 'SELECT customerID,firstname,lastname,email FROM customer WHERE customerid='.$id;
     $result = mysqli_query($DBC,$query);
     $rowcount = mysqli_num_rows($result);
-    if ($rowcount > 0) {
+    if ($rowcount > 0) { 
       $row = mysqli_fetch_assoc($result);
     ?>
     <div id="main">
