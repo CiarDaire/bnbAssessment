@@ -85,6 +85,7 @@ I would also assume that the datepicker date range would cover from current day 
         exit();
     }
     include "config.php";
+    include 'ChromePhp.php';
         $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
         if (mysqli_connect_errno()) {
             echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
@@ -140,9 +141,15 @@ I would also assume that the datepicker date range would cover from current day 
                 $customerID = cleanInput($_POST['customerID']);
                 $query = "INSERT INTO booking (customerID, roomID, checkinDate, checkoutDate, contactNumber, extras) VALUES (?,?,?,?,?,?)";
                 $stmt = mysqli_prepare($DBC, $query);
-                mysqli_stmt_bind_param($stmt, "iissss", $customerID, $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras, );
+                mysqli_stmt_bind_param($stmt, "iissss", $customerID, $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras );
+                ChromePhp::log('Customer ID: ', $customerID);
+                ChromePhp::log('Room ID: ', $roomID);
+                ChromePhp::log('Checkin Date: ', $checkinDate);
+                ChromePhp::log('Checkout Date: ', $checkoutDate);
+                ChromePhp::log('Contact Number: ', $contactNumber);
+                ChromePhp::log('Extras: ', $extras);
                 if (mysqli_stmt_execute($stmt)) {
-                    echo "<h2>New booking has been added.</h2>";
+                    echo "<h1>New booking has been added.</h1>";
                 } else {
                     echo "<h2>Error adding booking: " . mysqli_error($DBC) . "</h2>";
                 }
@@ -150,6 +157,7 @@ I would also assume that the datepicker date range would cover from current day 
             } else {
                 echo "<h2>$msg</h2>";
             }
+            
         }
 
         $roomquery = 'SELECT * FROM room';
@@ -171,8 +179,8 @@ I would also assume that the datepicker date range would cover from current day 
         <div id="menubar">
         <ul id="menu">
           <li><a href="index.php">Home</a></li>
-          <li class="selected"><a href="listrooms.php">Rooms</a></li>
-          <li><a href="listbookings.php">Bookings</a></li>
+          <li><a href="listrooms.php">Rooms</a></li>
+          <li class="selected"><a href="listbookings.php">Bookings</a></li>
           <li><a href="listcustomers.php">Customers</a></li>
         </ul>
         </div>
@@ -277,6 +285,7 @@ I would also assume that the datepicker date range would cover from current day 
             </tr>
         </thead>
     </table>
+    </div>
     </div>
     <div id="footer">
         Copyright &copy; black_white | <a href="http://validator.w3.org/check?uri=referer">HTML5</a> | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a> | <a href="http://www.html5webtemplates.co.uk">Free CSS Templates</a>

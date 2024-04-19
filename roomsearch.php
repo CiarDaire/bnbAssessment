@@ -1,5 +1,6 @@
 <?php
     include 'config.php';
+    include 'ChromePhp.php';
 
     $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
             if (mysqli_connect_errno()) {
@@ -17,6 +18,8 @@
 
         $stmt = $DBC->prepare($query);
         $stmt->bind_param("ss", $startDate, $endDate);
+        ChromePhp::log('StartDate: ', $startDate);
+        ChromePhp::log('StartDate: ', $endDate);
         $stmt->execute();
 
         $result = $stmt->get_result();
