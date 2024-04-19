@@ -2,11 +2,8 @@
     include 'config.php';
     include 'ChromePhp.php';
 
-    $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
-            if (mysqli_connect_errno()) {
-                echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
-                exit();
-            };
+    // import database connection
+    include 'dbcConnect.php';
 
     if (isset($_GET['startDate']) && isset($_GET['endDate'])) {
         $startDate = $_GET['startDate'];

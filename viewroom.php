@@ -10,7 +10,7 @@
 <body>
     <?php
     include 'checksession.php';
-    checkUser();
+
     if (isset($_POST['logout'])) {
         logout();
         exit();

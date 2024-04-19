@@ -84,89 +84,83 @@ I would also assume that the datepicker date range would cover from current day 
         logout();
         exit();
     }
-    include "config.php";
+
     include 'ChromePhp.php';
-        $DBC = mysqli_connect(DBHOST, DBUSER, DBPASSWORD, DBDATABASE);
-        if (mysqli_connect_errno()) {
-            echo "Error: Unable to connect to MYSQL.". mysqli_connect_error();
-            exit();
-        };
-        // function to remove unnecessary slashes, spaces, and converts special characters into html equivalents; common security measure
-        function cleanInput($data){
-            return htmlspecialchars(stripslashes((trim($data))));
+    include 'cleanInput.php';
+    include 'dbcConnect.php';
+        
+        
+    if(isset($_POST["submit"]) and !empty($_POST['submit']) and ($_POST['submit'] == 'Add')){
+        $error = 0;
+        $msg = 'Error: ';
+
+        if(isset($_POST['checkinDate']) and !empty($_POST['checkinDate']) and is_string($_POST['checkinDate'])){
+            $cInD = cleanInput($_POST['checkinDate']);
+            $checkinDate = (strlen($cInD) < 11) ? substr($cInD,0,11): $cInD;
+        } else {
+            $error++;
+            $msg .= 'Invalid checkin date';
+            $checkinDate = '';
         }
 
-        if(isset($_POST["submit"]) and !empty($_POST['submit']) and ($_POST['submit'] == 'Add')){
-            $error = 0;
-            $msg = 'Error: ';
-
-            if(isset($_POST['checkinDate']) and !empty($_POST['checkinDate']) and is_string($_POST['checkinDate'])){
-                $cInD = cleanInput($_POST['checkinDate']);
-                $checkinDate = (strlen($cInD) < 11) ? substr($cInD,0,11): $cInD;
-            } else {
-                $error++;
-                $msg .= 'Invalid checkin date';
-                $checkinDate = '';
-            }
-
-            if(isset($_POST['checkoutDate']) and !empty($_POST['checkoutDate']) and is_string($_POST['checkoutDate'])){
-                $cOutD = cleanInput($_POST['checkoutDate']);
-                $checkoutDate = (strlen($cOutD) < 11) ? substr($cOutD,0,11): $cOutD;
-            } else {
-                $error++;
-                $msg .= 'Invalid checkout date';
-                $checkoutDate = '';
-            }
-
-            if(isset($_POST['contactNumber']) and !empty($_POST['contactNumber']) and is_string($_POST['contactNumber'])){
-                $phone = cleanInput($_POST['contactNumber']);
-                $contactNumber = (strlen($phone) < 15) ? substr($phone,0,15): $phone;
-            } else {
-                $error++;
-                $msg .= 'Invalid phone number';
-                $contactNumber = '';
-            }
-
-            if(isset($_POST['extras']) and !empty($_POST['extras']) and is_string($_POST['extras'])){
-                $ex = cleanInput($_POST['extras']);
-                $extras = (strlen($ex) < 255) ? substr($ex,0,255): $ex;
-            } else {
-                $error++;
-                $msg .= 'Invalid comment';
-                $extras = '';
-            }
-
-            if($error == 0){
-                $roomID = cleanInput($_POST['roomID']);
-                $customerID = cleanInput($_POST['customerID']);
-                $query = "INSERT INTO booking (customerID, roomID, checkinDate, checkoutDate, contactNumber, extras) VALUES (?,?,?,?,?,?)";
-                $stmt = mysqli_prepare($DBC, $query);
-                mysqli_stmt_bind_param($stmt, "iissss", $customerID, $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras );
-                ChromePhp::log('Customer ID: ', $customerID);
-                ChromePhp::log('Room ID: ', $roomID);
-                ChromePhp::log('Checkin Date: ', $checkinDate);
-                ChromePhp::log('Checkout Date: ', $checkoutDate);
-                ChromePhp::log('Contact Number: ', $contactNumber);
-                ChromePhp::log('Extras: ', $extras);
-                if (mysqli_stmt_execute($stmt)) {
-                    echo "<h1>New booking has been added.</h1>";
-                } else {
-                    echo "<h2>Error adding booking: " . mysqli_error($DBC) . "</h2>";
-                }
-                mysqli_stmt_close($stmt);    
-            } else {
-                echo "<h2>$msg</h2>";
-            }
-            
+        if(isset($_POST['checkoutDate']) and !empty($_POST['checkoutDate']) and is_string($_POST['checkoutDate'])){
+            $cOutD = cleanInput($_POST['checkoutDate']);
+            $checkoutDate = (strlen($cOutD) < 11) ? substr($cOutD,0,11): $cOutD;
+        } else {
+            $error++;
+            $msg .= 'Invalid checkout date';
+            $checkoutDate = '';
         }
 
-        $roomquery = 'SELECT * FROM room';
-        $roomresult = mysqli_query($DBC, $roomquery);
-        $roomrowcount = mysqli_num_rows($roomresult);
+        if(isset($_POST['contactNumber']) and !empty($_POST['contactNumber']) and is_string($_POST['contactNumber'])){
+            $phone = cleanInput($_POST['contactNumber']);
+            $contactNumber = (strlen($phone) < 15) ? substr($phone,0,15): $phone;
+        } else {
+            $error++;
+            $msg .= 'Invalid phone number';
+            $contactNumber = '';
+        }
 
-        $customerquery = 'SELECT customerID, firstname, lastname FROM customer';
-        $customerresult = mysqli_query($DBC, $customerquery);
-        $customerrowcount = mysqli_num_rows($customerresult);
+        if(isset($_POST['extras']) and !empty($_POST['extras']) and is_string($_POST['extras'])){
+            $ex = cleanInput($_POST['extras']);
+            $extras = (strlen($ex) < 255) ? substr($ex,0,255): $ex;
+        } else {
+            $error++;
+            $msg .= 'Invalid comment';
+            $extras = '';
+        }
+
+        if($error == 0){
+            $roomID = cleanInput($_POST['roomID']);
+            $customerID = cleanInput($_POST['customerID']);
+            $query = "INSERT INTO booking (customerID, roomID, checkinDate, checkoutDate, contactNumber, extras) VALUES (?,?,?,?,?,?)";
+            $stmt = mysqli_prepare($DBC, $query);
+            mysqli_stmt_bind_param($stmt, "iissss", $customerID, $roomID, $checkinDate, $checkoutDate, $contactNumber, $extras );
+            ChromePhp::log('Customer ID: ', $customerID);
+            ChromePhp::log('Room ID: ', $roomID);
+            ChromePhp::log('Checkin Date: ', $checkinDate);
+            ChromePhp::log('Checkout Date: ', $checkoutDate);
+            ChromePhp::log('Contact Number: ', $contactNumber);
+            ChromePhp::log('Extras: ', $extras);
+            if (mysqli_stmt_execute($stmt)) {
+                echo "<h1>New booking has been added.</h1>";
+            } else {
+                echo "<h2>Error adding booking: " . mysqli_error($DBC) . "</h2>";
+            }
+            mysqli_stmt_close($stmt);    
+        } else {
+            echo "<h2>$msg</h2>";
+        }
+        
+    }
+
+    $roomquery = 'SELECT * FROM room';
+    $roomresult = mysqli_query($DBC, $roomquery);
+    $roomrowcount = mysqli_num_rows($roomresult);
+
+    $customerquery = 'SELECT customerID, firstname, lastname FROM customer';
+    $customerresult = mysqli_query($DBC, $customerquery);
+    $customerrowcount = mysqli_num_rows($customerresult);
     ?>
     <div id="main">
     <div id="header">

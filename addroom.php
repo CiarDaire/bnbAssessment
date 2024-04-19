@@ -16,23 +16,13 @@
         logout();
         exit();
     }
-    //function to clean input but not validate type and content
-    function cleanInput($data) {  
-      return htmlspecialchars(stripslashes(trim($data)));
-    }
+    
+    include 'cleanInput.php';
+    include 'dbcConnect.php';
 
     //the data was sent using a formtherefore we use the $_POST instead of $_GET
     //check if we are saving data first by checking if the submit button exists in the array
     if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Add')) {
-    //if ($_SERVER["REQUEST_METHOD"] == "POST") { //alternative simpler POST test    
-        include "config.php"; //load in any variables
-        $DBC = mysqli_connect("127.0.0.1", DBUSER, DBPASSWORD, DBDATABASE);
-
-        if (mysqli_connect_errno()) {
-            echo "Error: Unable to connect to MySQL. ".mysqli_connect_error() ;
-            exit; //stop processing the page further
-        };
-
     //validate incoming data - only the first field is done for you in this example - rest is up to you do
     //roomname
         $error = 0; //clear our error flag
