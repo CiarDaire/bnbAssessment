@@ -48,7 +48,7 @@
         
     //save the Room data if the error flag is still clear and Room id is > 0
         if ($error == 0 and $id > 0) {
-            $query = "DELETE FROM Room WHERE RoomID=?";
+            $query = "DELETE FROM room WHERE roomID=?";
             $stmt = mysqli_prepare($DBC,$query); //prepare the query
             mysqli_stmt_bind_param($stmt,'i', $id); 
             mysqli_stmt_execute($stmt);
@@ -63,7 +63,7 @@
     //prepare a query and send it to the server
     //NOTE for simplicity purposes ONLY we are not using prepared queries
     //make sure you ALWAYS use prepared queries when creating custom SQL like below
-    $query = 'SELECT * FROM Room WHERE Roomid='.$id;
+    $query = 'SELECT * FROM room WHERE roomID='.$id;
     $result = mysqli_query($DBC,$query);
     $rowcount = mysqli_num_rows($result); 
     ?>
