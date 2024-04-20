@@ -53,16 +53,16 @@
             <?php
             if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] ==1){
             ?>
-            <li class="selected"><a href="index.php">Home</a></li>
-                <li><a href="listrooms.php">Rooms</a></li>
+            <li><a href="index.php">Home</a></li>
+                <li class="selected"><a href="listrooms.php">Rooms</a></li>
                 <li><a href="listbookings.php">Bookings</a></li>
                 <li><a href="listcustomers.php">Customers</a></li>
             ?>
             <?php
             }else{
             ?>
-                <li class="selected"><a href="index.php">Home</a></li>
-                <li><a href="listrooms.php">Rooms</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li class="selected"><a href="listrooms.php">Rooms</a></li>
                 <li><a href="registercustomer.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
             <?php
