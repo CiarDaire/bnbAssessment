@@ -13,6 +13,7 @@
 
     if (isset($_POST['logout'])) {
         logout();
+        header("Location: login.php");
         exit();
     }
     ?>

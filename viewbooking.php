@@ -15,6 +15,7 @@ Details will be updated after any edits/updates have been made. -->
     checkUser();
     if (isset($_POST['logout'])) {
         logout();
+        header("Location: login.php");
         exit();
     }
     loginStatus(); 

@@ -13,17 +13,12 @@
 
     if (isset($_POST['logout'])) {
         logout();
+        header("Location: login.php");
         exit();
     }
-    include "config.php"; //load in any variables
-    $DBC = mysqli_connect("127.0.0.1", DBUSER, DBPASSWORD, DBDATABASE);
-
-    //insert DB code from here onwards
-    //check if the connection was good
-    if (mysqli_connect_errno()) {
-        echo "Error: Unable to connect to MySQL. ".mysqli_connect_error() ;
-        exit; //stop processing the page further
-    }
+    
+    // import database connection
+    include 'dbcConnect.php';
 
     //do some simple validation to check if id exists
     $id = $_GET['id'];

@@ -70,7 +70,7 @@ function searchResult(searchstr) {
     checkUser();
     if (isset($_POST['logout'])) {
         logout();
-        
+        header("Location: login.php");
         exit();
     }
     loginStatus(); 
