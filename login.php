@@ -56,8 +56,8 @@
 
                 if ($password === $row['password'])          
                 login($row['customerID'],$username);
-                // header("Location: index.php");
-                // exit();
+                header("Location: index.php");
+                exit();
 
             } echo "<h6>Login fail</h6>".PHP_EOL;   
         } else { 

@@ -82,6 +82,7 @@ I would also assume that the datepicker date range would cover from current day 
     checkUser();
     if (isset($_POST['logout'])) {
         logout();
+        header("Location: login.php");
         exit();
     }
 

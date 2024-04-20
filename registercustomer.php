@@ -10,19 +10,22 @@
 </head>
 <body>
 <?php
+  include 'checksession.php';
+  
+  if (isset($_POST['logout'])) {
+      logout();
+      header("Location: login.php");
+      exit();
+  }
+
   include 'cleanInput.php';
 
   //the data was sent using a formtherefore we use the $_POST instead of $_GET
   //check if we are saving data first by checking if the submit button exists in the array
   if (isset($_POST['submit']) and !empty($_POST['submit']) and ($_POST['submit'] == 'Register')) {
-  //if ($_SERVER["REQUEST_METHOD"] == "POST") { //alternative simpler POST test    
-      include "config.php"; //load in any variables
-      $DBC = mysqli_connect("127.0.0.1", DBUSER, DBPASSWORD, DBDATABASE);
-
-      if (mysqli_connect_errno()) {
-          echo "Error: Unable to connect to MySQL. ".mysqli_connect_error() ;
-          exit; //stop processing the page further
-      };
+    
+    // import database connection
+    include 'dbcConnect.php';
 
   //validate incoming data - only the first field is done for you in this example - rest is up to you do
   //firstname

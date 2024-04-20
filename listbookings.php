@@ -17,7 +17,7 @@ Future iteration will likely include filtering options by customer and booking p
     checkUser();
     if (isset($_POST['logout'])) {
         logout();
-        
+        header("Location: login.php");
         exit();
     }
     loginStatus(); 
